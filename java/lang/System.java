@@ -1063,6 +1063,9 @@ public final class System {
      * Loads the system library specified by the <code>libname</code>
      * argument. The manner in which a library name is mapped to the
      * actual system library is system dependent.
+     *
+     * 加载libname指定的系统库。这种方式是将一个库名称对应于一个实实在在的系统库。这是跨平台的。
+     *
      * <p>
      * The call <code>System.loadLibrary(name)</code> is effectively
      * equivalent to the call
@@ -1087,6 +1090,8 @@ public final class System {
     /**
      * Maps a library name into a platform-specific string representing
      * a native library.
+     *
+     * 一个库名称映射成表示本机库的特定于平台的字符串。本地方法实现。
      *
      * @param      libname the name of the library.
      * @return     a platform-dependent native library name.

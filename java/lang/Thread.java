@@ -257,6 +257,8 @@ class Thread implements Runnable {
     /**
      * Returns a reference to the currently executing thread object.
      *
+     * 返回当前的线程信息，本地方法实现
+     *
      * @return  the currently executing thread.
      */
     public static native Thread currentThread();
@@ -1336,9 +1338,13 @@ class Thread implements Runnable {
      * Prints a stack trace of the current thread to the standard error stream.
      * This method is used only for debugging.
      *
+     * 打印当前线程的堆栈跟踪到标准错误流。
+     * 只有在调试的时候才会使用这个方法。
+     *
      * @see     Throwable#printStackTrace()
      */
     public static void dumpStack() {
+        // 这里定义了异常来处理，但是没有抛出，好妙
         new Exception("Stack trace").printStackTrace();
     }
 

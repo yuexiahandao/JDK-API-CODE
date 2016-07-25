@@ -28,6 +28,7 @@ package java.io;
 
 /**
  * Package-private abstract class for the local filesystem abstraction.
+ * 包内可见的抽象类，这个类是对本地文件系统的抽象
  */
 
 abstract class FileSystem {
@@ -35,6 +36,8 @@ abstract class FileSystem {
     /**
      * Return the FileSystem object representing this platform's local
      * filesystem.
+     *
+     * 这个是通过C++实现的。获取文件系统的实现方法
      */
     public static native FileSystem getFileSystem();
 

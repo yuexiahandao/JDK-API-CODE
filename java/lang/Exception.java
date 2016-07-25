@@ -30,12 +30,16 @@ package java.lang;
  * {@code Throwable} that indicates conditions that a reasonable
  * application might want to catch.
  *
+ * Exception 类及其子类是 Throwable 的一种形式，它指出了合理的应用程序想要捕获的条件。
+ *
  * <p>The class {@code Exception} and any subclasses that are not also
  * subclasses of {@link RuntimeException} are <em>checked
  * exceptions</em>.  Checked exceptions need to be declared in a
  * method or constructor's {@code throws} clause if they can be thrown
  * by the execution of the method or constructor and propagate outside
  * the method or constructor boundary.
+ *
+ * 这个类Exception和它的任何子类（不是RuntimeException的子类）都是已检异常。已检异常必须在发生的方法、构造方法使用throws显示的声明。
  *
  * @author  Frank Yellin
  * @see     java.lang.Error

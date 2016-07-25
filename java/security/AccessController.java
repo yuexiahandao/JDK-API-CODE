@@ -514,6 +514,9 @@ public final class AccessController {
      * getPermission method of the AccessControlException returns the
      * <code>perm</code> Permission object instance.
      *
+     * 检查参数给出的permssion是不是被接收或者拒绝，这是基于当前的AccessControlContext和安全策略。
+     * 如果被接收，这个方法正常返回，否则返回异常。
+     *
      * @param perm the requested permission.
      *
      * @exception AccessControlException if the specified permission
@@ -528,30 +531,36 @@ public final class AccessController {
     {
         //System.err.println("checkPermission "+perm);
         //Thread.currentThread().dumpStack();
-
+        // perm参数不能为空
         if (perm == null) {
             throw new NullPointerException("permission can't be null");
         }
 
+        // 取得当前权限信息的上下文
         AccessControlContext stack = getStackAccessControlContext();
         // if context is null, we had privileged system code on the stack.
         if (stack == null) {
+            // 检查是不是要打印信息
             Debug debug = AccessControlContext.getDebug();
             boolean dumpDebug = false;
             if (debug != null) {
+                // java.security.debug属性不包括"codebase="
                 dumpDebug = !Debug.isOn("codebase=");
                 dumpDebug &= !Debug.isOn("permission=") ||
                     Debug.isOn("permission=" + perm.getClass().getCanonicalName());
             }
 
+            // 是否dumpStack？
             if (dumpDebug && Debug.isOn("stack")) {
                 Thread.currentThread().dumpStack();
             }
 
+            // 是否打印domain，这里打不打都无所谓吧！
             if (dumpDebug && Debug.isOn("domain")) {
                 debug.println("domain (context is null)");
             }
 
+            // 打印拥有的权限信息
             if (dumpDebug) {
                 debug.println("access allowed "+perm);
             }

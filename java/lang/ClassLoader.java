@@ -1686,6 +1686,10 @@ public abstract class ClassLoader {
      * searches the library along the path specified as the
      * "<tt>java.library.path</tt>" property.  </p>
      *
+     * 返回一个本地库的绝对地址。VM调用这个方法去定位本地库的位置。如果这个方法返回null，VM就会在java.library.path属性
+     * 指定的路径中搜索本地库。这个方法可以被我们重写，这样我们可以让他找到我们自定义的本地库。其实直接指定java.library.path
+     * 属性值可能更方便。
+     *
      * @param  libname
      *         The library name
      *
@@ -1714,9 +1718,16 @@ public abstract class ClassLoader {
      *
      * @see      ClassLoader
      * @since    1.2
+     *
+     * 内部类，表示一个加载的本地库实例。每一个类加载器都包含一个nativeLibraries的已加载的本地库的vector属性。
+     * 被加载进系统的本地库将被放入到systemNativeLibraries属性用。
+     *
+     * 每一个本地库要求一个指定的JNI版本。jniVersion属性用来表示。这个字段只有在加载本地库的时候被VM设置，
+     * 并且只被VM使用，向本地方法传送正确的JNI版本号。
      */
     static class NativeLibrary {
         // opaque handle to native library, used in native code.
+        // 不透明的本地库处理器，本地代码使用
         long handle;
         // the version of JNI environment the native library requires.
         private int jniVersion;
@@ -1736,21 +1747,26 @@ public abstract class ClassLoader {
         }
 
         protected void finalize() {
+            // 同步加锁
             synchronized (loadedLibraryNames) {
                 if (fromClass.getClassLoader() != null && handle != 0) {
                     /* remove the native library name */
                     int size = loadedLibraryNames.size();
                     for (int i = 0; i < size; i++) {
+                        // 缓存中去除相应的本地库
                         if (name.equals(loadedLibraryNames.elementAt(i))) {
                             loadedLibraryNames.removeElementAt(i);
                             break;
                         }
                     }
                     /* unload the library. */
+                    // 入栈、进入操作进行表
                     ClassLoader.nativeLibraryContext.push(this);
                     try {
+                        // 卸载，本地方法实现
                         unload();
                     } finally {
+                        // 出栈
                         ClassLoader.nativeLibraryContext.pop();
                     }
                 }
@@ -1774,18 +1790,27 @@ public abstract class ClassLoader {
     private Vector<NativeLibrary> nativeLibraries = new Vector<>();
 
     // native libraries being loaded/unloaded.
+    // 本地库正在被操作的列表，出栈或者入栈
     private static Stack<NativeLibrary> nativeLibraryContext = new Stack<>();
 
     // The paths searched for libraries
     private static String usr_paths[];
     private static String sys_paths[];
 
+    /**
+     * 从属性中取得对应用户设置的值，以文件分隔符作为分隔取得对应路径数组
+     * @param propname 属性名
+     * @return 路径数组
+     */
     private static String[] initializePath(String propname) {
+        // 取得系统设置的类加载路径，用户可以在运行的时候指定，默认值是空
         String ldpath = System.getProperty(propname, "");
+        // 取得文件分隔符
         String ps = File.pathSeparator;
         int ldlen = ldpath.length();
         int i, j, n;
         // Count the separators in the path
+        // 统计路径中的文件分隔符数目
         i = ldpath.indexOf(ps);
         n = 0;
         while (i >= 0) {
@@ -1803,6 +1828,7 @@ public abstract class ClassLoader {
             if (j - i > 0) {
                 paths[n++] = ldpath.substring(i, j);
             } else if (j - i == 0) {
+                // 当前目录（处理最后可能出现的文件分隔符）
                 paths[n++] = ".";
             }
             i = j + 1;
@@ -1813,20 +1839,34 @@ public abstract class ClassLoader {
     }
 
     // Invoked in the java.lang.Runtime class to implement load and loadLibrary.
+
+    /**
+     * 在Java中用System.loadLibrary()方法加载native方法本地C++产生的动态链接库文件，
+     * 这个native()方法就可以在Java中被访问了。
+     * @param fromClass 包含的类
+     * @param name 类库名
+     * @param isAbsolute 是不是绝对地址
+     */
     static void loadLibrary(Class fromClass, String name,
                             boolean isAbsolute) {
+        // 取得使用类的类加载器，如果存在的话，否则使用默认的类加载器
         ClassLoader loader =
             (fromClass == null) ? null : fromClass.getClassLoader();
+        // 如果缓存中有数据了，就不再取了
         if (sys_paths == null) {
+            // 默认的类加载路径，可以设置这个属性值，这样可以在自己的路径中加载本地库
             usr_paths = initializePath("java.library.path");
+            // 默认的类加载路径，可以设置这个属性值
             sys_paths = initializePath("sun.boot.library.path");
         }
+        // 是绝对地址的话，直接加载。
         if (isAbsolute) {
             if (loadLibrary0(fromClass, new File(name))) {
                 return;
             }
             throw new UnsatisfiedLinkError("Can't load library: " + name);
         }
+        // 通过findLibrary来找到绝对路径，可以重载该方法，默认是返回空
         if (loader != null) {
             String libfilename = loader.findLibrary(name);
             if (libfilename != null) {
@@ -1841,12 +1881,14 @@ public abstract class ClassLoader {
                 throw new UnsatisfiedLinkError("Can't load " + libfilename);
             }
         }
+        // 现在在sys_paths中找，一层一层地找
         for (int i = 0 ; i < sys_paths.length ; i++) {
             File libfile = new File(sys_paths[i], System.mapLibraryName(name));
             if (loadLibrary0(fromClass, libfile)) {
                 return;
             }
         }
+        // 在user_paths中再来找，只有指定了相应的类才可以有user_paths
         if (loader != null) {
             for (int i = 0 ; i < usr_paths.length ; i++) {
                 File libfile = new File(usr_paths[i],
@@ -1857,10 +1899,12 @@ public abstract class ClassLoader {
             }
         }
         // Oops, it failed
+        // 跑到这里只有失败了
         throw new UnsatisfiedLinkError("no " + name + " in java.library.path");
     }
 
     private static boolean loadLibrary0(Class fromClass, final File file) {
+        // 如果加载成功返回true
         if (loadLibrary1(fromClass, file)) {
             return true;
         }
@@ -1871,7 +1915,14 @@ public abstract class ClassLoader {
         return false;
     }
 
+    /**
+     * 加载动态链接库
+     * @param fromClass 使用类
+     * @param file 文件路劲File对象
+     * @return 成功与否
+     */
     private static boolean loadLibrary1(Class fromClass, final File file) {
+        // 这个操作是特权方法，加了限制也没用。
         boolean exists = AccessController.doPrivileged(
             new PrivilegedAction<Object>() {
                 public Object run() {
@@ -1879,19 +1930,26 @@ public abstract class ClassLoader {
                 }})
             != null;
         if (!exists) {
+            // 文件不存在返回
             return false;
         }
+        // 返回路径规范化的名称
         String name;
         try {
             name = file.getCanonicalPath();
         } catch (IOException e) {
             return false;
         }
+        // 获取类加载器
         ClassLoader loader =
             (fromClass == null) ? null : fromClass.getClassLoader();
+        // 如果使用类的类加载器获取到，就用使用类的类加载器加载动态链接库，
+        // 否则就加载系统内的动态库，这里也是设计操作系统底层的知识。暂时是空的。
         Vector<NativeLibrary> libs =
             loader != null ? loader.nativeLibraries : systemNativeLibraries;
+        // 同步加锁synchronized方法定义在Object中。
         synchronized (libs) {
+            // 已经加载了，直接返回true。
             int size = libs.size();
             for (int i = 0; i < size; i++) {
                 NativeLibrary lib = libs.elementAt(i);
@@ -1900,7 +1958,9 @@ public abstract class ClassLoader {
                 }
             }
 
+            // 没有下载尝试加载
             synchronized (loadedLibraryNames) {
+                // 这个代码应该不会执行到吧！嵌套的加锁可能是有问题的。
                 if (loadedLibraryNames.contains(name)) {
                     throw new UnsatisfiedLinkError
                         ("Native Library " +
@@ -1919,6 +1979,7 @@ public abstract class ClassLoader {
                  * immediately return success; otherwise, we raise
                  * UnsatisfiedLinkError.
                  */
+                // 检查一下有没有人正在操作这个类库，除了自己本身
                 int n = nativeLibraryContext.size();
                 for (int i = 0; i < n; i++) {
                     NativeLibrary lib = nativeLibraryContext.elementAt(i);
@@ -1933,11 +1994,15 @@ public abstract class ClassLoader {
                         }
                     }
                 }
+                // 开始加载本地类库
                 NativeLibrary lib = new NativeLibrary(fromClass, name);
+                // 加入操作列表
                 nativeLibraryContext.push(lib);
                 try {
+                    // 本地方法实现
                     lib.load(name);
                 } finally {
+                    // 记得弹出
                     nativeLibraryContext.pop();
                 }
                 if (lib.handle != 0) {

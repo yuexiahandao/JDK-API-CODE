@@ -222,6 +222,37 @@ import sun.security.util.SecurityConstants;
  * @see     java.security.ProtectionDomain
  *
  * @since   JDK1.0
+ *
+ * 安全管理器是一个允许应用程序实现安全策略的类。它允许应用程序在执行一个可能不安全或敏感的操作前确定该操作是什么，
+ * 以及是否是在允许执行该操作的安全上下文中执行它。应用程序可以允许或不允许该操作。
+ *
+ * SecurityManager 类包含了很多名称以单词 check 开头的方法。Java 库中的各种方法在执行某些潜在的敏感操作前可以调用这些方法。
+ *
+ * 因此，安全管理器通过抛出异常来提供阻止操作完成的机会。如果允许执行该操作，则安全管理器例程只是简单地返回，
+ * 但如果不允许执行该操作，则抛出一个 SecurityException。该约定的唯一例外是 checkTopLevelWindow，它返回 boolean 值。
+ *
+ * 当前的安全管理器由 System 类中的 setSecurityManager 方法设置。当前的安全管理器由 getSecurityManager 方法获得。
+ *
+ * 特殊方法 checkPermission(java.security.Permission) 确定是应该允许还是拒绝由指定权限所指示的访问请求。
+ *
+ * 从 Java 2 SDK v1.2 开始，SecurityManager 中其他所有 check 方法的默认实现都是调用 SecurityManager#checkPermission
+ * 方法来确定调用线程是否具有执行所请求操作的权限。
+ *
+ * 注意，只带有单个权限参数的 checkPermission 方法总是在当前执行的线程上下文中执行安全检查。
+ * 有时，应该在给定上下文中进行的安全检查实际上需要在不同 的上下文（例如，在一个辅助线程中）中进行。
+ * Java 为这种情况提供了包含有上下文参数的 getSecurityContext 方法和 checkPermission 方法。
+ * getSecurityContext 方法返回当前调用上下文的一个“快照”（默认的实现返回一个 AccessControlContext 对象）。
+ *
+ * checkPermission 方法使用一个上下文对象，以及根据该上下文而不是当前执行线程的上下文作出访问决策的权限。
+ * 因此另一个上下文中的代码可以调用此方法，传递权限和以前保存的上下文对象。
+ *
+ * 权限分为以下类别：文件、套接字、网络、安全性、运行时、属性、AWT、反射和可序列化。管理各种权限类别的类是
+ * java.io.FilePermission、java.net.SocketPermission、java.net.NetPermission、java.security.SecurityPermission、
+ * java.lang.RuntimePermission、java.util.PropertyPermission、java.awt.AWTPermission、java.lang.reflect.ReflectPermission
+ * 和 java.io.SerializablePermission。
+ *
+ * 注：还有一个暗指所有权限的 java.security.AllPermission 权限。
+ * 该权限是为了简化系统管理员的工作而存在的，因为管理员可能需要执行很多需要所有（或许多）权限的任务。
  */
 public
 class SecurityManager {
@@ -230,21 +261,27 @@ class SecurityManager {
      * This field is <code>true</code> if there is a security check in
      * progress; <code>false</code> otherwise.
      *
+     * 如果运行过程中有安全验证，这个属性的值为true，否则就为false。但是已弃用
+     *
      * @deprecated This type of security checking is not recommended.
      *  It is recommended that the <code>checkPermission</code>
      *  call be used instead.
+     *
+     *  已弃用，建议使用checkPermission方法来代替。
      */
     @Deprecated
     protected boolean inCheck;
 
     /*
      * Have we been initialized. Effective against finalizer attacks.
+     * 我们被初始化了吗？有效对抗终结攻击。
      */
     private boolean initialized = false;
 
 
     /**
      * returns true if the current context has been granted AllPermission
+     * 如果当前上下文被赋予了所有权限就返回true
      */
     private boolean hasAllPermission()
     {
@@ -544,6 +581,9 @@ class SecurityManager {
      * @exception NullPointerException if the permission argument is
      *            <code>null</code>.
      * @since     1.2
+     *
+     * 如果perm参数指定的权限根据安全策略是不允许的话，抛出SecurityException异常。
+     * 最后是调用AccessController.checkPermission来检查给定的perm
      */
     public void checkPermission(Permission perm) {
         java.security.AccessController.checkPermission(perm);

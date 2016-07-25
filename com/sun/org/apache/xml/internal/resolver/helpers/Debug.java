@@ -32,10 +32,12 @@ package com.sun.org.apache.xml.internal.resolver.helpers;
  *
  * @author Norman Walsh
  * <a href="mailto:Norman.Walsh@Sun.COM">Norman.Walsh@Sun.COM</a>
- *
+ * 静态调试/通讯类目录。
+ * 这个类定义了一系列的静态方法，这些静态方法用于处理debug信息。debug级以下的信息将不会显示。
  */
 public class Debug {
   /** The internal debug level. */
+  // 内部的debug等级
   protected int debug = 0;
 
   /** Constructor */
@@ -44,11 +46,13 @@ public class Debug {
   }
 
   /** Set the debug level for future messages. */
+  // 设置debug级别
   public void setDebug(int newDebug) {
     debug = newDebug;
   }
 
   /** Get the current debug level. */
+  // 获取debug级别
   public int getDebug() {
     return debug;
   }
@@ -64,6 +68,7 @@ public class Debug {
    * value.
    * @param message The text of the message.
    */
+  // 打印字符串，根据等级打印
   public void message(int level, String message) {
     if (debug >= level) {
       System.out.println(message);
@@ -82,6 +87,7 @@ public class Debug {
    * @param message The text of the message.
    * @param spec An argument to the message.
    */
+  // 打印字符串，根据等级打印
   public void message(int level, String message, String spec) {
     if (debug >= level) {
       System.out.println(message + ": " + spec);
@@ -101,6 +107,7 @@ public class Debug {
    * @param spec1 An argument to the message.
    * @param spec2 Another argument to the message.
    */
+  // 打印字符串，根据等级打印
   public void message(int level, String message,
                              String spec1, String spec2) {
     if (debug >= level) {

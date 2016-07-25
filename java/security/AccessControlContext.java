@@ -96,7 +96,10 @@ public final class AccessControlContext {
             return debug;
         else {
             if (Policy.isSet()) {
+                // 详见sun.security.util.Debug: 主要是取属性java.security.debug是否开启，如果开启的话，
+                // 就打印相应地错误信息（检查字符串里面是不是有access字符串）。
                 debug = Debug.getInstance("access");
+                // 打印debug信息
                 debugInit = true;
             }
             return debug;

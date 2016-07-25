@@ -833,6 +833,11 @@ public class Runtime {
         loadLibrary0(System.getCallerClass(), libname);
     }
 
+    /**
+     * 加载系统库，里面有查找的流程等信息。
+     * @param fromClass
+     * @param libname
+     */
     synchronized void loadLibrary0(Class fromClass, String libname) {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {

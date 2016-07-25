@@ -255,8 +255,13 @@ class InetAddress implements java.io.Serializable {
      * 在运行期间加载网络库并提供初始化
      */
     static {
+        // GetBooleanAction实际上是调用Boolean.getBoolean(propName)来获得的，
+        // 而Boolean.getBoolean(propName)调用了System.getProperty(name)
+        // 反编译rt.jar包，可以在java.security.action包下找到这个类
+        // 所以启动ipv6支持，需要设置java.net.preferIPv6Addresses这个系统属性
         preferIPv6Address = java.security.AccessController.doPrivileged(
             new GetBooleanAction("java.net.preferIPv6Addresses")).booleanValue();
+        //LoadLibraryAction中其实是调用了System.loadLibrary("net")
         AccessController.doPrivileged(new LoadLibraryAction("net"));
         init();
     }
@@ -876,12 +881,18 @@ class InetAddress implements java.io.Serializable {
         return null;
     }
 
+    /**
+     * 创建名称服务
+     * @param provider ：从系统属性读出来的值，
+     * @return
+     */
     private static NameService createNSProvider(String provider) {
         if (provider == null)
             return null;
 
         NameService nameService = null;
         if (provider.equals("default")) {
+            // 使用默认的配置，使用匿名类的方式实现
             // initialize the default name service
             nameService = new NameService() {
                 public InetAddress[] lookupAllHostAddr(String host)
@@ -899,6 +910,8 @@ class InetAddress implements java.io.Serializable {
                 nameService = java.security.AccessController.doPrivileged(
                     new java.security.PrivilegedExceptionAction<NameService>() {
                         public NameService run() {
+                            // sun.net.spi.nameservice.NameServiceDescriptor在rt.jar包中。
+                            // 在META-INF/services/NameServiceDescriptor文件夹下放了多个资源文件
                             Iterator itr = Service.providers(NameServiceDescriptor.class);
                             while (itr.hasNext()) {
                                 NameServiceDescriptor nsd
@@ -930,9 +943,12 @@ class InetAddress implements java.io.Serializable {
 
     static {
         // create the impl
+        // 创建InetAddressImpl实例，有Inet6AddressImp和Inet4AddressImp两种实例
         impl = InetAddressImplFactory.create();
 
         // get name service if provided and requested
+        // 如果提供和请求的话，获得名称服务
+        // 这属于corba的实现，关于corba：http://linux.ximizi.com/linux/linux531.htm
         String provider = null;;
         String propPrefix = "sun.net.spi.nameservice.provider.";
         int n = 1;
@@ -1477,6 +1493,7 @@ class InetAddress implements java.io.Serializable {
 
     /**
      * Perform class load-time initializations.
+     * 又是一个平台相关代码，执行类加载时初始化。
      */
     private static native void init();
 
@@ -1491,6 +1508,8 @@ class InetAddress implements java.io.Serializable {
 
     /*
      * Load and instantiate an underlying impl class
+     * 加载和实例化一个隐藏的类实例
+     * 这里可不可以做定制化呢？
      */
     static InetAddressImpl loadImpl(String implName) {
         Object impl = null;
@@ -1502,9 +1521,11 @@ class InetAddress implements java.io.Serializable {
          * property can vary across implementations of the java.
          * classes.  The default is an empty String "".
          */
+        // 取得impl.prefix属性
         String prefix = AccessController.doPrivileged(
                       new GetPropertyAction("impl.prefix", ""));
         try {
+            // 组合处理类名，并加载，创建实例
             impl = Class.forName("java.net." + prefix + implName).newInstance();
         } catch (ClassNotFoundException e) {
             System.err.println("Class not found: java.net." + prefix +
@@ -1522,6 +1543,7 @@ class InetAddress implements java.io.Serializable {
 
         if (impl == null) {
             try {
+                // 如果加载失败，那么使用给定的类名进行处理。
                 impl = Class.forName(implName).newInstance();
             } catch (Exception e) {
                 throw new Error("System property impl.prefix incorrect");
@@ -1551,13 +1573,22 @@ class InetAddress implements java.io.Serializable {
 
 /*
  * Simple factory to create the impl
+ * 简单额InetAddressImpl创建工厂类
  */
 class InetAddressImplFactory {
 
+    /**
+     * 创建InetAddress
+     * @return
+     */
     static InetAddressImpl create() {
         return InetAddress.loadImpl(isIPv6Supported() ?
                                     "Inet6AddressImpl" : "Inet4AddressImpl");
     }
 
+    /**
+     * 平台是否支持ipv6
+     * @return
+     */
     static native boolean isIPv6Supported();
 }

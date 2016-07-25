@@ -28,9 +28,12 @@ import java.io.IOException;
 /*
  * Package private interface to "implementation" used by
  * {@link InetAddress}.
+ * 私有包内的实现接口，被InetAddress使用。
  * <p>
  * See {@link java.net.Inet4AddressImp} and
  * {@link java.net.Inet6AddressImp}.
+ *
+ * 可以查看Inet6AddressImp和Inet4AddressImp
  *
  * @since 1.4
  */

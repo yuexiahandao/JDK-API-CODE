@@ -152,6 +152,8 @@ public class File
 
     /**
      * The FileSystem object representing the platform's local file system.
+     *
+     * 获取fileSystem的信息，声明为static对象，只获取一次，为啥不加final？
      */
     static private FileSystem fs = FileSystem.getFileSystem();
 
@@ -204,6 +206,7 @@ public class File
      * is <code>';'</code>.
      *
      * @see     java.lang.System#getProperty(java.lang.String)
+     * 获取系统的文件分隔符（单个字符）
      */
     public static final char pathSeparatorChar = fs.getPathSeparator();
 
@@ -211,6 +214,7 @@ public class File
      * The system-dependent path-separator character, represented as a string
      * for convenience.  This string contains a single character, namely
      * <code>{@link #pathSeparatorChar}</code>.
+     * 获取系统的文件分隔符（字符串）
      */
     public static final String pathSeparator = "" + pathSeparatorChar;
 
@@ -570,6 +574,7 @@ public class File
      *
      * @return  The canonical pathname string denoting the same file or
      *          directory as this abstract pathname
+     *          规范路径名字符串，它与此抽象路径名表示相同的文件或目录
      *
      * @throws  IOException
      *          If an I/O error occurs, which is possible because the
@@ -584,6 +589,8 @@ public class File
      *
      * @since   JDK1.1
      * @see     Path#toRealPath
+     *
+     * 返回此抽象路径名的规范形式。等同于 new File(this.getCanonicalPath())。
      */
     public String getCanonicalPath() throws IOException {
         return fs.canonicalize(fs.resolve(this));
