@@ -47,6 +47,9 @@ import com.sun.corba.se.impl.orbutil.ORBConstants ;
  * @since       JDK1.2
  */
 
+/**
+ * 名称服务
+ */
 public class NameService
 {
     private NamingContext rootContext = null;

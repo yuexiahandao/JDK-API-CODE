@@ -484,6 +484,8 @@ public final class System {
      *               because of a type mismatch.
      * @exception  NullPointerException if either <code>src</code> or
      *               <code>dest</code> is <code>null</code>.
+     *
+     * 数组拷贝，这是一个本地方法实现。
      */
     public static native void arraycopy(Object src,  int  srcPos,
                                         Object dest, int destPos,

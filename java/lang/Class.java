@@ -267,6 +267,7 @@ public final
     }
 
     /** Called after security checks have been made. */
+    // 安全检查已作出后调用。本地方法实现
     private static native Class<?> forName0(String name, boolean initialize,
                                             ClassLoader loader)
         throws ClassNotFoundException;
@@ -438,6 +439,8 @@ public final
      * @exception NullPointerException if the specified Class parameter is
      *            null.
      * @since JDK1.1
+     *
+     * 判定此Class对象表示的类或接口可以是一样的，或者说是一个超类或超接口的，由指定的Class参数所表示的类或接口。
      */
     public native boolean isAssignableFrom(Class<?> cls);
 

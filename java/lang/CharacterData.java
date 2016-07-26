@@ -25,6 +25,16 @@
 
 package java.lang;
 
+/**
+ * 字符数据类，主要是常见的字符集
+ *
+ * CharacterData 接口使用属性集合和用于访问 DOM 中字符数据的方法扩展节点。
+ * 为了清楚起见，在这里定义此集合，而不是在使用这些属性和方法的每个对象上定义。
+ * 任何 DOM 对象都不会直接对应于 CharacterData，尽管 Text 和其他的对象是从它继承该接口的。此接口中的所有 offset 都从 0 开始。
+ *
+ * 如 DOMString 接口中所述，DOM 中的文本字符串以 UTF-16（即 16 位单元序列）表示。
+ * 在下述情况下，每当需要指示以 16 位单元在 CharacterData 上进行索引时就使用术语 16 位单元。
+ */
 abstract class CharacterData {
     abstract int getProperties(int ch);
     abstract int getType(int ch);
@@ -73,8 +83,14 @@ abstract class CharacterData {
     // in negative cases for some accessors due to complicated ranges.
     // Should revisit after optimization of table initialization.
 
+    /**
+     * 这是获取实现类之一
+     * @param ch
+     * @return
+     */
     static final CharacterData of(int ch) {
         if (ch >>> 8 == 0) {     // fast-path
+            // 获取CharacterDataLatin1实例
             return CharacterDataLatin1.instance;
         } else {
             switch(ch >>> 16) {  //plane 00-16

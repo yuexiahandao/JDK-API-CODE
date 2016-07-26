@@ -29,6 +29,7 @@ package java.lang;
 /** 
  * The CharacterData00 class encapsulates the large tables once found in
  * java.lang.Character
+ * 也是一个字符集数据类
 */
 
 class CharacterData00 extends CharacterData {

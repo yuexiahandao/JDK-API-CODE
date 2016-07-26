@@ -911,7 +911,9 @@ class InetAddress implements java.io.Serializable {
                     new java.security.PrivilegedExceptionAction<NameService>() {
                         public NameService run() {
                             // sun.net.spi.nameservice.NameServiceDescriptor在rt.jar包中。
-                            // 在META-INF/services/NameServiceDescriptor文件夹下放了多个资源文件
+                            // 在META-INF/services/NameServiceDescriptor文件里放了多个资源文件
+                            // 在jre/lib/ext/dnsns.jar包中，找到了，实现类是sun.net.spi.nameservice.dns.DNSNameServiceDescriptor,
+                            // 源码也要去这个包里面看，无非就是用它来创建DNSNameService
                             Iterator itr = Service.providers(NameServiceDescriptor.class);
                             while (itr.hasNext()) {
                                 NameServiceDescriptor nsd

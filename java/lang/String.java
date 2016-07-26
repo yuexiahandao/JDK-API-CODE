@@ -666,6 +666,8 @@ public final class String
      * (Unicode code units) and ranges from <code>0</code> to
      * {@link #length()}<code> - 1</code>.
      *
+     * 返回指定位置的字符。返回的是unicode的字符。
+     *
      * <p> If the <code>char</code> value specified at the given index
      * is in the high-surrogate range, the following index is less
      * than the length of this <code>String</code>, and the
@@ -2747,6 +2749,7 @@ public final class String
      * @return  a newly allocated character array whose length is the length
      *          of this string and whose contents are initialized to contain
      *          the character sequence represented by this string.
+     * 将字符串变为本地数组
      */
     public char[] toCharArray() {
         // Cannot use Arrays.copyOf because of class initialization order issues

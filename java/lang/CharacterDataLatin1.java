@@ -29,6 +29,10 @@ package java.lang;
 /** The CharacterData class encapsulates the large tables found in
     Java.lang.Character. */
 
+/**
+ * 字符数据类封装在java.lang.Character中发现的大量的表。
+ * 主要是拉丁字符集。
+ */
 class CharacterDataLatin1 extends CharacterData {
 
     /* The character properties are currently encoded into 32 bits in the following manner:
@@ -314,7 +318,7 @@ class CharacterDataLatin1 extends CharacterData {
     "\000\000\000\000\000\000\000\000\000").toCharArray();
 
   // In all, the character property tables require 1024 bytes.
-
+    // 就是简单地置上256ASCII字符
     static {
                 { // THIS CODE WAS AUTOMATICALLY CREATED BY GenerateCharacter:
             char[] data = A_DATA.toCharArray();

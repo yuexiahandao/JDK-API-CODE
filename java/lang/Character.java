@@ -4615,6 +4615,8 @@ class Character implements java.io.Serializable, Comparable<Character> {
      * @return  2 if the character is a valid supplementary character; 1 otherwise.
      * @see     Character#isSupplementaryCodePoint(int)
      * @since   1.5
+     *
+     * 占用的字节数
      */
     public static int charCount(int codePoint) {
         return codePoint >= MIN_SUPPLEMENTARY_CODE_POINT ? 2 : 1;
@@ -5779,6 +5781,8 @@ class Character implements java.io.Serializable, Comparable<Character> {
     /**
      * Determines if the specified character is
      * permissible as the first character in a Java identifier.
+     *
+     * 检查指定的字符是不是允许作为Java标识符中的首字符。
      * <p>
      * A character may start a Java identifier if and only if
      * one of the following conditions is true:
