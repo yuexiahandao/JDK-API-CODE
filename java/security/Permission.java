@@ -60,6 +60,8 @@ package java.security;
  *
  * @author Marianne Mueller
  * @author Roland Schemers
+ *
+ * 权限类，注意这里面有两个需要注意的地方
  */
 
 public abstract class Permission implements Guard, java.io.Serializable {

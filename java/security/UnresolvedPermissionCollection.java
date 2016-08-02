@@ -94,6 +94,7 @@ implements java.io.Serializable
     /**
      * get any unresolved permissions of the same type as p,
      * and return the List containing them.
+     * 获得任何一个和p类型一样的没有解决的权限，并且返回包含它们的列表
      */
     List<UnresolvedPermission> getUnresolvedPermissions(Permission p) {
         synchronized (this) {

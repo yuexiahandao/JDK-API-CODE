@@ -41,6 +41,9 @@ package java.security;
  * @see java.security.interfaces.DSAPublicKey
  * @see java.security.interfaces.RSAPublicKey
  *
+ * 公钥。此接口不包含任何方法或常量。它仅用于将所有公钥接口分组（并为其提供类型安全）。
+ * 注：特定的公钥接口扩展此接口。请参见（例如）java.security.interfaces 中的 DSAPublicKey 接口。
+ *
  */
 
 public interface PublicKey extends Key {

@@ -78,6 +78,14 @@ package java.security;
  * @see AccessControlContext
  * @since 1.3
  */
+
+/**
+ * DomainCombiner 提供一个动态更新与当前 AccessControlContext 关联的 ProtectionDomain 的方法。
+ *
+ * 将 DomainCombiner 作为参数传递给 AccessControlContext 的适当的构造方法。然后，将新构造的上下文传递给
+ * AccessController.doPrivileged(..., context) 方法来将提供的上下文（以及关联的 DomainCombiner）与当前的执行线程绑定在一起。
+ * 对 AccessController.getContext 或 AccessController.checkPermission 的后续调用将导致对 DomainCombiner.combine 的调用。
+ */
 public interface DomainCombiner {
 
     /**
@@ -106,6 +114,9 @@ public interface DomainCombiner {
      *
      * @return a new array consisting of the updated ProtectionDomains,
      *          or <code>null</code>.
+     *
+     * 修改或更新提供的 ProtectionDomain。可以将 ProtectionDomain 添加到给定的 ProtectionDomain 中，也可以从中移除。
+     * 可以重新排列 ProtectionDomain 的顺序。可以修改个别 ProtectionDomain（例如，利用新的 Permission 的集合）。
      */
     ProtectionDomain[] combine(ProtectionDomain[] currentDomains,
                                 ProtectionDomain[] assignedDomains);

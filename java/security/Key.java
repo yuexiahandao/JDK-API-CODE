@@ -98,6 +98,18 @@ package java.security;
  * @see Signer
  *
  * @author Benjamin Renaud
+ *
+ * Key 是所有密钥的顶层接口。它定义了供所有密钥对象共享的功能。所有的密钥都具有三个特征：
+ * 算法 ：
+ * 这是该密钥的密钥算法。密钥算法通常是加密或不对称操作算法（如 DSA 或 RSA），它们将和那些算法及相关的算法（例如 MD5 和 RSA，SHA-1 和 RSA、Raw DSA 等等）一起使用。用 getAlgorithm 方法获取密钥算法的名称。
+ *
+ * 编码形式 ：这是密钥的外部编码形式，在 Java 虚拟机之外需要密钥的标准表示形式时以及将密钥传输到其他某些部分时使用。密钥根据标准格式（如 X.509 SubjectPublicKeyInfo 或 PKCS#8）编码，使用 getEncoded 方法返回。
+ *
+ * 格式：这是已编码密钥的格式的名称。它由 getFormat 方法返回。
+ *
+ * 密钥通常通过密钥生成器、证书或用来管理密钥的各种 Identity 类来获取。密钥也可以通过使用密钥工厂（请参见 KeyFactory）从密钥规范（基础密钥材料的透明表示形式）获取。
+ *
+ * 密钥应该使用 KeyRep 作为其序列化的表示形式。注意，序列化的 Key 可能包含不应该在不可信任的环境中显示的敏感信息。有关更多信息，请参见序列化规范的安全附录。
  */
 
 public interface Key extends java.io.Serializable {

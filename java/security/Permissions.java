@@ -77,6 +77,9 @@ import java.io.IOException;
  * @author Roland Schemers
  *
  * @serial exclude
+ *
+ * 这是一个权限集，实现了PermissionCollection类
+ * 注意permsMap是缓存，add进入的Permission都会存在这个里面
  */
 
 public final class Permissions extends PermissionCollection
@@ -130,6 +133,7 @@ implements Serializable
         PermissionCollection pc;
 
         synchronized (this) {
+            // 将permission加入到对应的权限集
             pc = getPermissionCollection(permission, true);
             pc.add(permission);
         }
@@ -236,6 +240,12 @@ implements Serializable
      * adding an empty PermissionCollection that will just return false.
      * It should be set to true when invoked from add().
      */
+    /**
+     * 通过Permission类作为key，因为Permission是不可变的，所以这样做很OK，这需要看看Permission的hashCode实现
+     * @param p
+     * @param createEmpty
+     * @return
+     */
     private PermissionCollection getPermissionCollection(Permission p,
         boolean createEmpty) {
         Class c = p.getClass();
@@ -251,12 +261,13 @@ implements Serializable
 
             // if still null, create a new collection
             if (pc == null && createEmpty) {
-
+                // Permission里面有一个简单的实现方法，但是这个应该视具体的实现类
                 pc = p.newPermissionCollection();
 
                 // still no PermissionCollection?
                 // We'll give them a PermissionsHash.
                 if (pc == null)
+                    // 默认返回PermissionsHash
                     pc = new PermissionsHash();
             }
 
@@ -514,6 +525,7 @@ implements Serializable
     public boolean implies(Permission permission) {
         // attempt a fast lookup and implies. If that fails
         // then enumerate through all the permissions.
+        // 加锁
         synchronized (this) {
             Permission p = permsMap.get(permission);
 

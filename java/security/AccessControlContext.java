@@ -76,6 +76,22 @@ import sun.misc.SharedSecrets;
  * @author Roland Schemers
  */
 
+/**
+ * AccessControlContext 用于基于它所封装的上下文作出系统资源访问决定。
+ *
+ * 更确切地说，它封装一个上下文并且具有单个方法 (checkPermission)，该方法等效于 AccessController 类中的 checkPermission 方法，
+ * 只有一个不同点：AccessControlContext 的 checkPermission 方法基于它所封装的上下文而不是当前执行线程的上下文作出访问决定。
+ *
+ * 因此，AccessControlContext 的目的是用于那些实际需要在另一个 上下文（例如，在 worker 线程中）中执行应该在给定上下文中进行的安全检查的情形下。
+ *
+ * AccessControlContext 通过调用 AccessController.getContext 方法创建。
+ * getContext 方法获取当前调用上下文“快照”，并将其置于它所返回的 AccessControlContext 对象中。示例调用如下
+ *
+ * AccessControlContext acc = AccessController.getContext()
+ *
+ * 另一上下文中的代码可以随后在以前保存的 AccessControlContext 对象上调用 checkPermission 方法。示例调用如下：
+ * acc.checkPermission(permission)
+ */
 public final class AccessControlContext {
 
     private ProtectionDomain context[];
@@ -83,8 +99,10 @@ public final class AccessControlContext {
 
     // Note: This field is directly used by the virtual machine
     // native codes. Don't touch it.
+    // 这个字段直接被虚拟机使用
     private AccessControlContext privilegedContext;
 
+    // 用于组合两个AccessControlContext的配置，比如上面的privilegedContext和当前的Context
     private DomainCombiner combiner = null;
 
     private static boolean debugInit = false;
@@ -97,7 +115,7 @@ public final class AccessControlContext {
         else {
             if (Policy.isSet()) {
                 // 详见sun.security.util.Debug: 主要是取属性java.security.debug是否开启，如果开启的话，
-                // 就打印相应地错误信息（检查字符串里面是不是有access字符串）。
+                // 就打印相应地错误信息（通过java.security.debug设置打印什么信息，如果没有就使用access级别）。
                 debug = Debug.getInstance("access");
                 // 打印debug信息
                 debugInit = true;
@@ -115,6 +133,8 @@ public final class AccessControlContext {
      * The non-duplicate domains are copied from the array. Subsequent
      * changes to the array will not affect this AccessControlContext.
      * @throws NullPointerException if <code>context</code> is <code>null</code>
+     *
+     * 在这个构造器中，设置了ProtectionDomain
      */
     public AccessControlContext(ProtectionDomain context[])
     {
@@ -295,6 +315,7 @@ public final class AccessControlContext {
         if (perm == null) {
             throw new NullPointerException("permission can't be null");
         }
+        // 用来打印相关信息，可以参考里面的打印内容，辅助理解
         if (getDebug() != null) {
             // If "codebase" is not specified, we dump the info by default.
             dumpDebug = !Debug.isOn("codebase=");
@@ -381,6 +402,8 @@ public final class AccessControlContext {
     /**
      * Take the stack-based context (this) and combine it with the
      * privileged or inherited context, if need be.
+     *
+     * 就拿基于堆栈的情况下（this），并与特权或继承的上下文结合起来，如果需要的话。
      */
     AccessControlContext optimize() {
         // the assigned (privileged or inherited) context

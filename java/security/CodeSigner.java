@@ -32,16 +32,24 @@ import java.security.cert.CertPath;
  * This class encapsulates information about a code signer.
  * It is immutable.
  *
+ * 该类封装一个代码签名者的信息。
+ * 它是不可变的
+ *
  * @since 1.5
  * @author Vincent Ryan
  */
 
+/**
+ * 代码签名者
+ */
 public final class CodeSigner implements Serializable {
 
     private static final long serialVersionUID = 6819288105193937581L;
 
     /**
      * The signer's certificate path.
+     *
+     * 代码签名的证书位置
      *
      * @serial
      */
@@ -80,7 +88,7 @@ public final class CodeSigner implements Serializable {
 
     /**
      * Returns the signer's certificate path.
-     *
+     * 返回签名者的证书路径。
      * @return A certificate path.
      */
     public CertPath getSignerCertPath() {
@@ -89,7 +97,7 @@ public final class CodeSigner implements Serializable {
 
     /**
      * Returns the signature timestamp.
-     *
+     * 返回签名时间戳。
      * @return The timestamp or <code>null</code> if none is present.
      */
     public Timestamp getTimestamp() {

@@ -57,12 +57,23 @@ import sun.misc.SharedSecrets;
  * @author Li Gong
  * @author Roland Schemers
  * @author Gary Ellison
+ *
+ * 保护域
+ * 保护域定义了授予一段特定代码的所有权限。（一个保护域对应策略文件中的一个或多个Grant子句。）
+ * 装载入Java虚拟机的每一个类型都属于一个且仅属于一个保护域。
+ *
+ * 此 ProtectionDomain 类封装域的特征，域中包装一个类集合，在代表给定的主体集合执行这些类的实例时会授予它们一个权限集合。
+ *
+ * 在构造 ProtectionDomain 时可以对它绑定一个静态的权限集合；不管 Policy 是否有效，都会将这些权限授予域。
+ * 但是，为了支持动态安全策略，也可以构造 ProtectionDomain，使得只要检查权限时就能通过当前 Policy 将其动态地映射到一个权限集合。
  */
 
 public class ProtectionDomain {
 
     static {
         // Set up JavaSecurityAccess in SharedSecrets
+        // 在SharedSecrets设置好JavaSecurityAccess
+        // 设置java安全访问，这里是使用匿名实现类实现的。
         SharedSecrets.setJavaSecurityAccess(
             new JavaSecurityAccess() {
                 public <T> T doIntersectionPrivilege(
@@ -237,6 +248,9 @@ public class ProtectionDomain {
     /**
      * Check and see if this ProtectionDomain implies the permissions
      * expressed in the Permission object.
+     *
+     * 检查并查看此ProtectionDomain是否暗含了Permission对象表示的权限。
+     *
      * <p>
      * The set of permissions evaluated is a function of whether the
      * ProtectionDomain was constructed with a static set of permissions
@@ -269,6 +283,7 @@ public class ProtectionDomain {
             return true;
         }
 
+        // 如果是动态的权限验证，加载。这里正好可以看看Policy是如何加载的（这里最好先看PolicyFile类的实现）
         if (!staticPermissions &&
             Policy.getPolicyNoCheck().implies(this, permission))
             return true;

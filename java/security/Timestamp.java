@@ -38,8 +38,17 @@ import java.util.List;
  * It includes the timestamp's date and time as well as information about the
  * Timestamping Authority (TSA) which generated and signed the timestamp.
  *
+ * 这个类封装了一个签名时间戳的信息。这是不可变的。
+ * 这个类包括了时间戳的date和time以及TSA信息。时间戳管理局（TSA）是生成和标记时间戳用的。
+ *
  * @since 1.5
  * @author Vincent Ryan
+ *
+ * 时间戳协议通常包括三方:时间戳机构(Time Stamping Authority, TSA)，证书持有者(Subscriber)和
+ * 证书信赖者(Relying Party)证书持有者把待盖戳的文档发给服务器，从服务器得到时间戳。
+ * 在以后需要证明该文档的时间时，他出示这个时间戳，而证书信赖者验证时间戳的真实性，
+ * 从而确认该文档的时间下而把这三方分别记为TSA(Time Stamping Server) ,S(Subscriber)和R(Relying Party)，
+ * 把文档记为x, y= H(x)是x的数宇摘要SIGTSn(SigTSAdata)表示TSA对Signed-data的签名。
  */
 
 public final class Timestamp implements Serializable {
@@ -48,14 +57,14 @@ public final class Timestamp implements Serializable {
 
     /**
      * The timestamp's date and time
-     *
+     * 时间戳对应的date和time
      * @serial
      */
     private Date timestamp;
 
     /**
      * The TSA's certificate path.
-     *
+     * TSA证书的位置
      * @serial
      */
     private CertPath signerCertPath;

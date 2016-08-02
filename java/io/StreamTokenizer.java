@@ -34,6 +34,10 @@ import java.util.Arrays;
  * and a number of flags that can be set to various states. The
  * stream tokenizer can recognize identifiers, numbers, quoted
  * strings, and various comment styles.
+ *
+ * StreamTokenizer类有一个输入流和解析器在令牌里，允许令牌被一次读取一个。解析的过程是被table和一些标志控制的。
+ * 这些标志可以被设置为不同的状态。StreamTokenizer可以认识标识id，数字，引用字符串和各种评论风格。
+ *
  * <p>
  * Each byte read from the input stream is regarded as a character
  * in the range <code>'&#92;u0000'</code> through <code>'&#92;u00FF'</code>.
@@ -158,6 +162,8 @@ public class StreamTokenizer {
      * string giving the characters of the word token. When the current
      * token is a quoted string token, this field contains the body of
      * the string.
+     *
+     * 如果令牌是单词令牌，这个字段包含一个字符串，给出这个单词令牌的字符。如果是引用字符串，这个字段包含字符串的主题。
      * <p>
      * The current token is a word when the value of the
      * <code>ttype</code> field is <code>TT_WORD</code>. The current token is
@@ -165,6 +171,7 @@ public class StreamTokenizer {
      * a quote character.
      * <p>
      * The initial value of this field is null.
+     * 初始化值为null
      *
      * @see     java.io.StreamTokenizer#quoteChar(int)
      * @see     java.io.StreamTokenizer#TT_WORD
@@ -178,6 +185,8 @@ public class StreamTokenizer {
      * the <code>ttype</code> field is <code>TT_NUMBER</code>.
      * <p>
      * The initial value of this field is 0.0.
+     *
+     * 当当前token是一个数字，这个字段包含这个数字的值。初始化为0.0
      *
      * @see     java.io.StreamTokenizer#TT_NUMBER
      * @see     java.io.StreamTokenizer#ttype
@@ -267,6 +276,8 @@ public class StreamTokenizer {
      * <code>low&nbsp;&lt;=&nbsp;<i>c</i>&nbsp;&lt;=&nbsp;high</code>
      * are word constituents. A word token consists of a word constituent
      * followed by zero or more word constituents or number constituents.
+     *
+     * 指定范围内所有的字符（low-》high）是单词的组成部分。一个字令牌是由一个单词组成的，后跟零个或多个字成分或数字成分。
      *
      * @param   low   the low end of the range.
      * @param   hi    the high end of the range.
@@ -419,6 +430,8 @@ public class StreamTokenizer {
      * as tokens; the <code>nextToken</code> method returns
      * <code>TT_EOL</code> and also sets the <code>ttype</code> field to
      * this value when an end of line is read.
+     *
+     * 换行符是不是作为一个token
      * <p>
      * A line is a sequence of characters ending with either a
      * carriage-return character (<code>'&#92;r'</code>) or a newline
@@ -495,6 +508,11 @@ public class StreamTokenizer {
     }
 
     /** Read the next character */
+    /**
+     * 读取下一个字符
+     * @return
+     * @throws IOException
+     */
     private int read() throws IOException {
         if (reader != null)
             return reader.read();
@@ -510,11 +528,16 @@ public class StreamTokenizer {
      * field. Additional information about the token may be in the
      * <code>nval</code> field or the <code>sval</code> field of this
      * tokenizer.
+     *
+     * 从这个tokenizer的输入流中解析下一个令牌。下一个令牌的类型将在ttype中返回。
+     * token的附加信息可能在nval属性里面或者sval字段里面。
      * <p>
      * Typical clients of this
      * class first set up the syntax tables and then sit in a loop
      * calling nextToken to parse successive tokens until TT_EOF
      * is returned.
+     *
+     * 这个类的典型客户端先设置好标记表，然后放到nextToken的循环调用中去解析token直到TT_EOF返回，就是读到文件的末尾位置。
      *
      * @return     the value of the <code>ttype</code> field.
      * @exception  IOException  if an I/O error occurs.
@@ -522,7 +545,9 @@ public class StreamTokenizer {
      * @see        java.io.StreamTokenizer#sval
      * @see        java.io.StreamTokenizer#ttype
      */
+    /// 注意这里的token是一个字符
     public int nextToken() throws IOException {
+        // 一次调用是返回ttype，下一次调用才是继续读取token
         if (pushedBack) {
             pushedBack = false;
             return ttype;
@@ -534,13 +559,16 @@ public class StreamTokenizer {
         if (c < 0)
             c = NEED_CHAR;
         if (c == SKIP_LF) {
+            // 读一个字符
             c = read();
             if (c < 0)
                 return ttype = TT_EOF;
             if (c == '\n')
+                // 需要继续读字符
                 c = NEED_CHAR;
         }
         if (c == NEED_CHAR) {
+            // 读一个字符
             c = read();
             if (c < 0)
                 return ttype = TT_EOF;
@@ -555,11 +583,14 @@ public class StreamTokenizer {
         int ctype = c < 256 ? ct[c] : CT_ALPHA;
         while ((ctype & CT_WHITESPACE) != 0) {
             if (c == '\r') {
+                // 换行符的话，行+1
                 LINENO++;
                 if (eolIsSignificantP) {
+                    // 如果换行符作为一个token，返回
                     peekc = SKIP_LF;
                     return ttype = TT_EOL;
                 }
+                // 不是的话，继续读取
                 c = read();
                 if (c == '\n')
                     c = read();
@@ -756,6 +787,8 @@ public class StreamTokenizer {
      * tokenizer to return the current value in the <code>ttype</code>
      * field, and not to modify the value in the <code>nval</code> or
      * <code>sval</code> field.
+     *
+     * 导致下次调用nextToken方法来返回当前的token的ttype字段。并且不去改写nval和sval字段的值。
      *
      * @see     java.io.StreamTokenizer#nextToken()
      * @see     java.io.StreamTokenizer#nval

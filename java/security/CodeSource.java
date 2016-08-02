@@ -43,6 +43,8 @@ import java.security.cert.*;
  *
  * @author Li Gong
  * @author Roland Schemers
+ *
+ * 此类扩展 codebase 的概念，不仅可以封装位置 (URL) 而且可以封装用于验证起源于该位置的签名代码的证书链。
  */
 
 public class CodeSource implements java.io.Serializable {
@@ -51,25 +53,29 @@ public class CodeSource implements java.io.Serializable {
 
     /**
      * The code location.
-     *
+     * 代码的位置
      * @serial
      */
     private URL location;
 
     /*
      * The code signers.
+     * 关于代码签名者
      */
     private transient CodeSigner[] signers = null;
 
     /*
      * The code signers. Certificate chains are concatenated.
+     * 代码签名。证书链是连接的
      */
     private transient java.security.cert.Certificate certs[] = null;
 
     // cached SocketPermission used for matchLocation
+    // 用于匹配位置缓存的SocketPermission
     private transient SocketPermission sp;
 
     // for generating cert paths
+    // 用来生成证书路径
     private transient CertificateFactory factory = null;
 
     /**
@@ -183,13 +189,16 @@ public class CodeSource implements java.io.Serializable {
      */
     public final java.security.cert.Certificate[] getCertificates() {
         if (certs != null) {
+            // 线程安全，从缓存中取
             return certs.clone();
 
         } else if (signers != null) {
             // Convert the code signers to certs
+            // 将代码签名者转换为证书集
             ArrayList<java.security.cert.Certificate> certChains =
                         new ArrayList<>();
             for (int i = 0; i < signers.length; i++) {
+                // 获取证书，并加入
                 certChains.addAll(
                     signers[i].getSignerCertPath().getCertificates());
             }

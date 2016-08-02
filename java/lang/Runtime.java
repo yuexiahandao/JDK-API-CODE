@@ -39,6 +39,10 @@ import java.util.StringTokenizer;
  * @author  unascribed
  * @see     java.lang.Runtime#getRuntime()
  * @since   JDK1.0
+ *
+ * 每个 Java 应用程序都有一个 Runtime 类实例，使应用程序能够与其运行的环境相连接。
+ * 可以通过 getRuntime 方法获取当前Runtime。
+ * 应用程序不能创建自己的 Runtime 类实例。
  */
 
 public class Runtime {

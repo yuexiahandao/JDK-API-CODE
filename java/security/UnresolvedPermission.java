@@ -100,6 +100,10 @@ import java.security.cert.*;
  * @author Roland Schemers
  */
 
+/**
+ * UnresolvedPermission 类用来保持初始化 Policy 时“未解析”的权限。未解析的权限是这样的一种权限：
+ * 初始化 Policy 时其实际 Permission 类尚未存在（请参见以下内容）。
+ */
 public final class UnresolvedPermission extends Permission
 implements java.io.Serializable
 {

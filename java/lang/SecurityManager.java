@@ -304,6 +304,8 @@ class SecurityManager {
      * @deprecated This type of security checking is not recommended.
      *  It is recommended that the <code>checkPermission</code>
      *  call be used instead.
+     *
+     *  返回inCheck值，已经放弃使用了
      */
     @Deprecated
     public boolean getInCheck() {
@@ -326,6 +328,8 @@ class SecurityManager {
      * @see        java.lang.System#getSecurityManager()
      * @see        #checkPermission(java.security.Permission) checkPermission
      * @see java.lang.RuntimePermission
+     *
+     * 构造方法，先去的当前系统的安全管理器，查看权限，有权限才能创建
      */
     public SecurityManager() {
         synchronized(SecurityManager.class) {
@@ -349,6 +353,9 @@ class SecurityManager {
      * the class of that method's caller, and so on.
      *
      * @return  the execution stack.
+     *
+     * 返回当前执行堆栈中的类数组。数组的长度就是执行堆栈上方法的个数。索引0处是当前正在执行的方法，
+     * 索引1处，是当前执行方法的调用者。
      */
     protected native Class[] getClassContext();
 
@@ -392,6 +399,7 @@ class SecurityManager {
     protected ClassLoader currentClassLoader()
     {
         ClassLoader cl = currentClassLoader0();
+        // 如果当前的类加载器有全部权限就不让使用。强制用户不使用系统级的类加载器。
         if ((cl != null) && hasAllPermission())
             cl = null;
         return cl;

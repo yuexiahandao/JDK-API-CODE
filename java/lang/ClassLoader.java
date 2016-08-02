@@ -1774,6 +1774,7 @@ public abstract class ClassLoader {
         }
         // Invoked in the VM to determine the context class in
         // JNI_Load/JNI_Unload
+        // 在VM调用，在JNI加载和卸载的过程中以确定上下文类
         static Class getFromClass() {
             return ClassLoader.nativeLibraryContext.peek().fromClass;
         }
@@ -1805,7 +1806,7 @@ public abstract class ClassLoader {
     private static String[] initializePath(String propname) {
         // 取得系统设置的类加载路径，用户可以在运行的时候指定，默认值是空
         String ldpath = System.getProperty(propname, "");
-        // 取得文件分隔符
+        // 取得文件路径分隔符
         String ps = File.pathSeparator;
         int ldlen = ldpath.length();
         int i, j, n;

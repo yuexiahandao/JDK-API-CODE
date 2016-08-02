@@ -500,6 +500,9 @@ public final class URL implements java.io.Serializable {
      * within a specified context. If the handler is null, the parsing
      * occurs as with the two argument constructor.
      *
+     * 通过解析给定的url地址和相应的流处理器和特别的上下文创建一个url对象。如果处理器是空的，
+     * 那么解析就像2个参数构造函数。
+     *
      * @param      context   the context in which to parse the specification.
      * @param      spec      the <code>String</code> to parse as a URL.
      * @param      handler   the stream handler for the URL.
@@ -518,6 +521,7 @@ public final class URL implements java.io.Serializable {
     public URL(URL context, String spec, URLStreamHandler handler)
         throws MalformedURLException
     {
+        // 传进来的url
         String original = spec;
         int i, limit, c;
         int start = 0;

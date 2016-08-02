@@ -54,11 +54,16 @@ import sun.security.util.PropertyExpander;
  * This class represents a default implementation for
  * <code>javax.security.auth.Policy</code>.
  *
+ * 这个类代表一个Policy的默认实现类。
+ *
  * <p> This object stores the policy for entire Java runtime,
  * and is the amalgamation of multiple static policy
  * configurations that resides in files.
  * The algorithm for locating the policy file(s) and reading their
  * information into this <code>Policy</code> object is:
+ *
+ * 这个对象保存着整个java运行期的安全策略，并且是所有存在于文件中的静态安全规则配置的合并。
+ * 定位Policy文件和将它们的内容读入Policy的算法如下：
  *
  * <ol>
  * <li>
@@ -72,6 +77,11 @@ import sun.security.util.PropertyExpander;
  *   Each property value specifies a <code>URL</code> pointing to a
  *   policy file to be loaded.  Read in and load each policy.
  *
+ * 循环查找java.security.Security属性，auth.policy.url.1，auth.policy.url.2，auth.policy.url.X。
+ * 这些属性在java安全属性文件中被设置，这些文件可以在名为$JAVA_HOME/lib/security/java.security文件中找到。
+ * $JAVA_HOME是对应的环境变量值，并且指出了jre被放置在哪？。每个属性值指定一个指向一个可加载的Policy文件的URL。
+ * 读取并加载每个policy。
+ *
  * <li>
  *   The <code>java.lang.System</code> property <i>java.security.auth.policy</i>
  *   may also be set to a <code>URL</code> pointing to another policy file
@@ -81,14 +91,21 @@ import sun.security.util.PropertyExpander;
  *   <i>policy.allowSystemProperty</i> is set to <i>true</i>),
  *   also load that policy.
  *
+ *   系统属性java.security.auth.policy也是被设置为指向额外的policy文件的url。如果这个属性被定义，并且它的使用是被安全属性文件
+ *   （安全属性为：policy.allowSystemProperty=true）允许的，那就会被加载。
+ *
  * <li>
  *   If the <i>java.security.auth.policy</i> property is defined using
  *   "==" (rather than "="), then ignore all other specified
  *   policies and only load this policy.
+ *
+ *   如果java.security.auth.policy属性使用==定义而不是=定义，那么就会忽略所有其他指定的安全策略，只加载这个policy。
  * </ol>
  *
  * Each policy file consists of one or more grant entries, each of
  * which consists of a number of permission entries.
+ *
+ * 每个policy文件由一个或者多个grant实体组成，每个grant块由一组权限块组成。
  *
  * <pre>
  *   grant signedBy "<b>alias</b>", codeBase "<b>URL</b>",
@@ -107,6 +124,11 @@ import sun.security.util.PropertyExpander;
  * All non-bold items above must appear as is (although case
  * doesn't matter and some are optional, as noted below).
  * Italicized items represent variable values.
+ *
+ * 上面所有没加粗的项目必须这么写（虽然不区分大小写的，有些是可选的，如下所述）
+ *
+ * 下面的内容就不在深入学习了，详细的内容请查看：
+ * 使用Policy文件来设置Java的安全策略：http://www.blogjava.net/china-qd/archive/2006/04/25/42931.html
  *
  * <p> A grant entry must begin with the word <code>grant</code>.
  * The <code>signedBy</code> and <code>codeBase</code>
@@ -274,13 +296,17 @@ public class PolicyFile extends javax.security.auth.Policy {
     /**
      * Initializes the Policy object and reads the default policy
      * configuration file(s) into the Policy object.
+     *
+     * 这是Policy对象的初始化，从默认的策略配置中读取相应的配置。
      */
     public PolicyFile() {
         // initialize Policy if either the AUTH_POLICY or
         // SECURITY_MANAGER properties are set
+        // java.security.auth.policy
         String prop = System.getProperty(AUTH_POLICY);
 
         if (prop == null) {
+            // java.security.manager
             prop = System.getProperty(SECURITY_MANAGER);
         }
         if (prop != null)
@@ -288,10 +314,11 @@ public class PolicyFile extends javax.security.auth.Policy {
     }
 
     private synchronized void init() {
-
+        // 初始化之后就不初始化了。
         if (initialized)
             return;
 
+        // policy实体列表
         policyEntries = new Vector<PolicyEntry>();
         aliasMapping = new Hashtable(11);
 
@@ -382,26 +409,36 @@ public class PolicyFile extends javax.security.auth.Policy {
 
     private void initPolicyFile() {
 
+        // 获取系统属性policy.expandProperties
+        // 安全属性文件的 "policy.expandProperties"被设为true，则可使用扩展，何字符串中都可使用，
+        // 如${java.home}和{file.separator}.扩展符不能嵌套使用。
         String prop = Security.getProperty("policy.expandProperties");
 
+        // 值为true，否则为false
         if (prop != null) expandProperties = prop.equalsIgnoreCase("true");
 
+        // 获取policy.ignoreIdentityScope属性
         String iscp = Security.getProperty("policy.ignoreIdentityScope");
 
         if (iscp != null) ignoreIdentityScope = iscp.equalsIgnoreCase("true");
 
+        // 获取policy.allowSystemProperty属性
         String allowSys  = Security.getProperty("policy.allowSystemProperty");
 
+        // 如果同意获取系统的属性
         if ((allowSys!=null) && allowSys.equalsIgnoreCase("true")) {
-
+            // 获取java.security.auth.policy属性
             String extra_policy = System.getProperty(AUTH_POLICY);
             if (extra_policy != null) {
+                // 是否重写全部
                 boolean overrideAll = false;
                 if (extra_policy.startsWith("=")) {
                     overrideAll = true;
+                    // 去掉等号
                     extra_policy = extra_policy.substring(1);
                 }
                 try {
+                    // 对路径进行扩展，替换占位符
                     extra_policy = PropertyExpander.expand(extra_policy);
                     URL policyURL;;
                     File policyFile = new File(extra_policy);
@@ -472,11 +509,15 @@ public class PolicyFile extends javax.security.auth.Policy {
      * Reads a policy configuration into the Policy object using a
      * Reader object.
      *
+     * 通过一个阅读器对象读取一个策略配置到Policy对象中
+     *
      * @param policyFile the policy Reader object.
      */
     private void init(URL policy) {
+        // 构建一个PolicyParser对象
         PolicyParser pp = new PolicyParser(expandProperties);
         try {
+            // 获取阅读器
             InputStreamReader isr
                 = new InputStreamReader(getInputStream(policy));
             pp.read(isr);
@@ -514,6 +555,7 @@ public class PolicyFile extends javax.security.auth.Policy {
      * start up time noticeably for the new launcher. -- DAC
      */
     private InputStream getInputStream(URL url) throws IOException {
+        // 只接受file形式的URL
         if ("file".equals(url.getProtocol())) {
             String path = url.getFile().replace('/', File.separatorChar);
             return new FileInputStream(path);

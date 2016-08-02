@@ -56,6 +56,12 @@ import sun.security.x509.X509CertImpl;
  * @see CertificateFactory
  *
  * @author Hemma Prafullchandra
+ *
+ * 管理各种身份证书的抽象类。身份证书是某个主体的保证，保证某个公钥是另一个主体的公钥。（主体表示一个实体，如个人用户、团体或公司。）
+ *
+ * 此类是具有不同格式但是很常用的证书的抽象。例如，不同的证书类型（如 X.509 和 PGP）共享通用的证书功能（如编码和验证）和某些信息类型（如公钥）。
+ *
+ * 虽然 X.509、PGP 和 SDSI 证书包含不同的信息集，并且它们以不同的方式存储和获取信息，但都可以通过扩展 Certificate 类来实现它们。
  */
 
 public abstract class Certificate implements java.io.Serializable {
@@ -63,6 +69,7 @@ public abstract class Certificate implements java.io.Serializable {
     private static final long serialVersionUID = -3585440601605666277L;
 
     // the certificate type
+    // 证书的类型
     private final String type;
 
     /**

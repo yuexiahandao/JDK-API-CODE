@@ -117,10 +117,46 @@ import java.util.List;
  * @author      Yassir Elley
  * @since       1.4
  */
+
+/**
+ * 不可变的证书序列（证书路径）。
+ * 这是一个抽象类，定义了常用于所有 CertPath 的方法。其子类可处理不同类型的证书（X.509、PGP 等等）。
+ *
+ * 所有 CertPath 对象都包含类型、Certificate 列表及其支持的一种或多种编码。由于 CertPath 类是不可变的，
+ * 所以构造 CertPath 后无法以任何外部可见的方式更改它。此规定适用于此类的所有公共字段和方法，以及由子类添加或重写的所有公共字段和方法。
+ *
+ * 类型是标识证书路径中 Certificate 类型的一个 String。对于证书路径 certPath 中的每个证书 cert 而言，cert.getType().equals(certPath.getType()) 必须为 true。
+ *
+ * Certificate 列表是零个或多个 Certificate 的有序 List。此 List 和其中所包含的所有 Certificate 都必须是不可变的。
+ *
+ * 每个 CertPath 对象必须支持一种或多种编码方式，这样可将对象转换成 byte 数组进行存储，或传输给其他方。
+ * 这些编码最好应该具有记录良好的标准（例如 PKCS#7）。将 CertPath 支持的某种编码视为默认编码。
+ * 如果没有显式地请求编码（例如，getEncoded() 方法），则使用此编码。
+ *
+ * 所有 CertPath 对象都是 Serializable。在序列化期间将 CertPath 对象解析为一个替换的 CertPathRep 对象。
+ * 这就允许不管 CertPath 对象的基础实现如何，都可以将该对象序列化为等效的表示形式。
+ *
+ * 可使用 CertificateFactory 创建 CertPath 对象，或者可通过其他类（如 CertPathBuilder）返回这些对象。
+ *
+ * 按照惯例，X.509 CertPath（由 X509Certificate 组成）的顺序按照从目标证书开始，从信任的定位点所发布的证书结束。
+ * 也就是说，证书的发布方是以下某个主体。表示 TrustAnchor 的证书不应包括在证书路径中。
+ * 未验证的 X.509 CertPath 可能不遵循这些约定。PKIX CertPathValidator 将检测任何与这些约定的偏差，
+ * 这些偏差会导致证书路径无效并且抛出 CertPathValidatorException。
+ *
+ * 并发访问
+ * 所有 CertPath 对象必须是线程安全的。也就是说，多个线程在单个 CertPath 对象（或多个对象）上并发调用此类中所定义的各种方法不会产生坏的影响。
+ * 对于 CertPath.getCertificates 返回的 List 也应如此。
+ *
+ * 要求 CertPath 对象是不可变的并且是线程安全的，就允许将其传递到各种代码片断中，而无需担心协调访问。
+ * 通常提供此种线程安全性并不难，因为相关的 CertPath 和 List 对象都是不可变的。
+ *
+ * 可以查看：http://www.enkichen.com/2016/02/26/digital-certificate-based/
+ */
 public abstract class CertPath implements Serializable {
 
     private static final long serialVersionUID = 6068470306649138683L;
 
+    // 证书链的类型
     private String type;        // the type of certificates in this chain
 
     /**
@@ -297,6 +333,8 @@ public abstract class CertPath implements Serializable {
     /**
      * Alternate <code>CertPath</code> class for serialization.
      * @since 1.4
+     *
+     * * 用于序列化的替换 CertPath 类。
      */
     protected static class CertPathRep implements Serializable {
 

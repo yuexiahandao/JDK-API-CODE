@@ -95,6 +95,9 @@ import sun.security.util.SecurityConstants;
  * @see java.security.Permission
  */
 
+/**
+ * 这是用于表示基于 Subject 授权的系统策略的抽象类。此类的子类实现提供一种方式来指定一个基于 Subject 的访问控制 Policy。
+ */
 public abstract class Policy {
 
     /**
@@ -105,10 +108,13 @@ public abstract class Policy {
                         new UnsupportedEmptyCollection();
 
     // Information about the system-wide policy.
+    // 关于系统范围的策略信息
     private static class PolicyInfo {
         // the system-wide policy
+        // 系统范围的Policy
         final Policy policy;
         // a flag indicating if the system-wide policy has been initialized
+        // 标识系统范围的策略有没有被初始化
         final boolean initialized;
 
         PolicyInfo(Policy policy, boolean initialized) {
@@ -118,12 +124,18 @@ public abstract class Policy {
     }
 
     // PolicyInfo is stored in an AtomicReference
+    // 策略信息是存放在一个AtomicReference实例里面的，rt.jar
+    // 这个类是用来做CAS锁的
     private static AtomicReference<PolicyInfo> policy =
         new AtomicReference<>(new PolicyInfo(null, false));
 
+    /**
+     * 防止Debug信息，默认打开policy的系统日志
+     */
     private static final Debug debug = Debug.getInstance("policy");
 
     // Cache mapping ProtectionDomain.Key to PermissionCollection
+    // 缓存映射:ProtectionDomain.Key->PermissionCollection
     private WeakHashMap<ProtectionDomain.Key, PermissionCollection> pdMapping;
 
     /** package private for AccessControlContext and ProtectionDomain */
@@ -177,21 +189,27 @@ public abstract class Policy {
         PolicyInfo pi = policy.get();
         // Use double-check idiom to avoid locking if system-wide policy is
         // already initialized
+        // policy是空的，或没有初始化
         if (pi.initialized == false || pi.policy == null) {
+            // 同步加锁，可以对类加锁
             synchronized (Policy.class) {
+                // 再取一遍，防止出错
                 PolicyInfo pinfo = policy.get();
                 if (pinfo.policy == null) {
                     String policy_class = AccessController.doPrivileged(
                         new PrivilegedAction<String>() {
                         public String run() {
+                            // 这里我们发现是从policy.provider属性中取得policy_class
                             return Security.getProperty("policy.provider");
                         }
                     });
                     if (policy_class == null) {
+                        // 如果policy.provider属性为空，那么默认使用sun.security.provider.PolicyFile
                         policy_class = "sun.security.provider.PolicyFile";
                     }
 
                     try {
+                        // 这里使用policyProvider来创建实例
                         pinfo = new PolicyInfo(
                             (Policy) Class.forName(policy_class).newInstance(),
                             true);
@@ -202,11 +220,16 @@ public abstract class Policy {
                          * provider that is on the bootclasspath.
                          * If it loads then shift gears to using the configured
                          * provider.
+                         *
+                         * 如果policy_class是一个扩展类，那么我们不得不通过一个policy provider加载，在bootclasspath上。
+                         * 如果它加载了，那么需要换挡要使用配置
                          */
 
                         // install the bootstrap provider to avoid recursion
+                        // 如果创建失败了，还是使用PolicyFile这个类来创建
                         Policy polFile = new sun.security.provider.PolicyFile();
                         pinfo = new PolicyInfo(polFile, false);
+                        // 设置policyInfo
                         policy.set(pinfo);
 
                         final String pc = policy_class;
@@ -218,10 +241,12 @@ public abstract class Policy {
                                             ClassLoader.getSystemClassLoader();
                                     // we want the extension loader
                                     ClassLoader extcl = null;
+                                    // 我们需要扩展类加载器
                                     while (cl != null) {
                                         extcl = cl;
                                         cl = cl.getParent();
                                     }
+                                    // 加载policy_class类
                                     return (extcl != null ? (Policy)Class.forName(
                                             pc, true, extcl).newInstance() : null);
                                 } catch (Exception e) {
@@ -317,6 +342,7 @@ public abstract class Policy {
         ProtectionDomain policyDomain =
         AccessController.doPrivileged(new PrivilegedAction<ProtectionDomain>() {
             public ProtectionDomain run() {
+                // 通过Class返回相应的保护域。
                 return p.getClass().getProtectionDomain();
             }
         });
@@ -330,16 +356,18 @@ public abstract class Policy {
         synchronized (p) {
             if (p.pdMapping == null) {
                 p.pdMapping = new WeakHashMap<>();
-           }
+            }
         }
 
         if (policyDomain.getCodeSource() != null) {
             Policy pol = policy.get().policy;
             if (pol != null) {
+                // 根据保护域获得策略PermissionCollection的空实现UnsupportedEmptyCollection
                 policyPerms = pol.getPermissions(policyDomain);
             }
 
             if (policyPerms == null) { // assume it has all
+                // 如果是实现
                 policyPerms = new Permissions();
                 policyPerms.add(SecurityConstants.ALL_PERMISSION);
             }
@@ -659,14 +687,17 @@ public abstract class Policy {
         if (domain == null)
             return new Permissions();
 
+        // 获取授权的信息
         if (pdMapping == null) {
             initPolicy(this);
         }
 
+        // 同步
         synchronized (pdMapping) {
             pc = pdMapping.get(domain.key);
         }
 
+        // 线程安全型的拷贝
         if (pc != null) {
             Permissions perms = new Permissions();
             synchronized (pc) {
@@ -682,12 +713,14 @@ public abstract class Policy {
             pc = new Permissions();
         }
 
+        // 加入静态的权限，静态的权限从domain.getPermissions()获得
         addStaticPerms(pc, domain.getPermissions());
         return pc;
     }
 
     /**
      * add static permissions to provided permission collection
+     * 将静态的配置加入到权限配置中。
      */
     private void addStaticPerms(PermissionCollection perms,
                                 PermissionCollection statics) {
@@ -722,6 +755,7 @@ public abstract class Policy {
             initPolicy(this);
         }
 
+        // 从缓存中取，同步
         synchronized (pdMapping) {
             pc = pdMapping.get(domain.key);
         }
@@ -810,6 +844,8 @@ public abstract class Policy {
      * <code>getPermissions(ProtectionDomain)</code>
      * methods in the Policy class when those operations are not
      * supported by the Policy implementation.
+     *
+     * 这个类代表一个只读空的PermissionCollection对象，被getPermissions方法返回。
      */
     private static class UnsupportedEmptyCollection
         extends PermissionCollection {

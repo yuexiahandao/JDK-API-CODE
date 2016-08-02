@@ -48,10 +48,16 @@ import sun.security.util.PropertyExpander;
  * flat ASCII file, as a serialized binary file of
  * the Policy class, or as a database. <p>
  *
+ * java运行时的策略（指定哪些权限是可用的对不同的目的的代码）是表示为一个分开的固定配置。
+ * 这些配置可能被存储为ASCII文件，序列化的Policy二进制文件，或者是数据库中。
+ *
  * <p>The Java runtime creates one global Policy object, which is used to
  * represent the static policy configuration file.  It is consulted by
  * a ProtectionDomain when the protection domain initializes its set of
  * permissions. <p>
+ *
+ * Java运行时创建一个全局的Policy对象，这个对象被用来代表静态的policy配置文件。
+ * 当保护域的初始化它的权限集时，它是通过ProtectionDomain查到的。
  *
  * <p>The Policy <code>init</code> method parses the policy
  * configuration file, and then
@@ -60,10 +66,16 @@ import sun.security.util.PropertyExpander;
  * Java runtime representation of the persistent policy configuration
  * file. <p>
  *
+ * Policy的init方法解析策略配置文件，然后填入Policy对象。Policy对象是不可知的，因为在做策略决定的时候它不是被包含的。
+ * 这只不过是持久策略配置的Java运行时表示。
+ *
  * <p>When a protection domain needs to initialize its set of
  * permissions, it executes code such as the following
  * to ask the global Policy object to populate a
  * Permissions object with the appropriate permissions:
+ *
+ * 当一个保护域需要初始化它的权限集的时候，它执行像下面的一段代码让全局的Policy对象用适当的权限填入一个Permission对象。
+ *
  * <pre>
  *  policy = Policy.getPolicy();
  *  Permissions perms = policy.getPermissions(MyCodeSource)
@@ -73,6 +85,9 @@ import sun.security.util.PropertyExpander;
  * object, which encapsulates its codebase (URL) and public key attributes.
  * The Policy object evaluates the global policy in light of who the
  * principal is and returns an appropriate Permissions object.
+ *
+ * 保护域传递一个CodeSource对象，CodeSource封装它的代码基本路径URL和公钥属性。
+ * Policy对象评估全局的policy，根据主要是谁，并且返回合适的权限对象。
  *
  * @deprecated As of JDK&nbsp;1.4, replaced by
  *             {@link sun.security.provider.PolicyParser}.
@@ -132,6 +147,8 @@ class PolicyParser {
      * Reads a policy configuration into the Policy object using a
      * Reader object. <p>
      *
+     * 读取策略配置文件到Policy独享对象中，使用一个Reader对象。
+     *
      * @param policy the policy Reader object.
      *
      * @exception ParsingException if the policy configuration contains
@@ -157,6 +174,7 @@ class PolicyParser {
          */
         st   = new StreamTokenizer(policy);
 
+        // 重置所有的标识符
         st.resetSyntax();
         st.wordChars('a', 'z');
         st.wordChars('A', 'Z');
