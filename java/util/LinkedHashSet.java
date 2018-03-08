@@ -113,6 +113,8 @@ package java.util;
  * @see     TreeSet
  * @see     Hashtable
  * @since   1.4
+ *
+ * 这个是基于HashSet实现的，继承HashSet类进行处理
  */
 
 public class LinkedHashSet<E>

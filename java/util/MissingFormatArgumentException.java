@@ -35,6 +35,8 @@ package java.util;
  * NullPointerException} to be thrown.
  *
  * @since 1.5
+ *
+ * 丢失格式参数的异常
  */
 public class MissingFormatArgumentException extends IllegalFormatException {
 

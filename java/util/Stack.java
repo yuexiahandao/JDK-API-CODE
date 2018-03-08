@@ -44,6 +44,8 @@ package java.util;
  *
  * @author  Jonathan Payne
  * @since   JDK1.0
+ *
+ * 原来Stack是基于Vector实现的
  */
 public
 class Stack<E> extends Vector<E> {
@@ -63,6 +65,7 @@ class Stack<E> extends Vector<E> {
      * @return  the <code>item</code> argument.
      * @see     java.util.Vector#addElement
      */
+    // 加入一个元素
     public E push(E item) {
         addElement(item);
 
@@ -77,6 +80,7 @@ class Stack<E> extends Vector<E> {
      *          of the <tt>Vector</tt> object).
      * @throws  EmptyStackException  if this stack is empty.
      */
+    // 弹出一个元素
     public synchronized E pop() {
         E       obj;
         int     len = size();

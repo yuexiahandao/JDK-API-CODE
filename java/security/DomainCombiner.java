@@ -85,6 +85,8 @@ package java.security;
  * 将 DomainCombiner 作为参数传递给 AccessControlContext 的适当的构造方法。然后，将新构造的上下文传递给
  * AccessController.doPrivileged(..., context) 方法来将提供的上下文（以及关联的 DomainCombiner）与当前的执行线程绑定在一起。
  * 对 AccessController.getContext 或 AccessController.checkPermission 的后续调用将导致对 DomainCombiner.combine 的调用。
+ *
+ * 这只是一个接口规范，ProtectionDomain应该实现了这个接口
  */
 public interface DomainCombiner {
 

@@ -170,6 +170,8 @@ public class WeakHashMap<K,V>
 
     /**
      * Reference queue for cleared WeakEntries
+     *
+     * 申明的WeakEntries的queue指针
      */
     private final ReferenceQueue<Object> queue = new ReferenceQueue<>();
 
@@ -198,6 +200,7 @@ public class WeakHashMap<K,V>
 
     /**
      * holds values which can't be initialized until after VM is booted.
+     * 持有VM启动之后就不能改变的值。
      */
     private static class Holder {
 
@@ -207,17 +210,20 @@ public class WeakHashMap<K,V>
         static final int ALTERNATIVE_HASHING_THRESHOLD;
 
         static {
+            // 读取系统的jdk.map.althashing.threshold配置
             String altThreshold = java.security.AccessController.doPrivileged(
                 new sun.security.action.GetPropertyAction(
                     "jdk.map.althashing.threshold"));
 
             int threshold;
             try {
+                // 取得threshold的值
                 threshold = (null != altThreshold)
                         ? Integer.parseInt(altThreshold)
                         : ALTERNATIVE_HASHING_THRESHOLD_DEFAULT;
 
                 // disable alternative hashing if -1
+                // 如果这个值是-1，关闭可变的hashing
                 if (threshold == -1) {
                     threshold = Integer.MAX_VALUE;
                 }
@@ -235,6 +241,8 @@ public class WeakHashMap<K,V>
     /**
      * If {@code true} then perform alternate hashing to reduce the incidence of
      * collisions due to weak hash code calculation.
+     *
+     * 如果为true，表现为可变的hashing
      */
     transient boolean useAltHashing;
 
@@ -244,6 +252,7 @@ public class WeakHashMap<K,V>
      */
     transient final int hashSeed = sun.misc.Hashing.randomHashSeed(this);
 
+    // 重新创建table
     @SuppressWarnings("unchecked")
     private Entry<K,V>[] newTable(int n) {
         return (Entry<K,V>[]) new Entry[n];
@@ -274,6 +283,8 @@ public class WeakHashMap<K,V>
         table = newTable(capacity);
         this.loadFactor = loadFactor;
         threshold = (int)(capacity * loadFactor);
+        // 取得虚拟机的参数
+        // 可以查看这个VM函数的意思，这VM类可以在rt.jar包中找到
         useAltHashing = sun.misc.VM.isBooted() &&
                 (capacity >= Holder.ALTERNATIVE_HASHING_THRESHOLD);
     }
@@ -286,6 +297,7 @@ public class WeakHashMap<K,V>
      * @throws IllegalArgumentException if the initial capacity is negative
      */
     public WeakHashMap(int initialCapacity) {
+        // 使用默认的加载因子
         this(initialCapacity, DEFAULT_LOAD_FACTOR);
     }
 
@@ -294,6 +306,7 @@ public class WeakHashMap<K,V>
      * capacity (16) and load factor (0.75).
      */
     public WeakHashMap() {
+        // 默认的初始化容量和默认的加载因子
         this(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR);
     }
 
@@ -308,9 +321,11 @@ public class WeakHashMap<K,V>
      * @since   1.3
      */
     public WeakHashMap(Map<? extends K, ? extends V> m) {
+        // 先计算加载因子
         this(Math.max((int) (m.size() / DEFAULT_LOAD_FACTOR) + 1,
                 DEFAULT_INITIAL_CAPACITY),
              DEFAULT_LOAD_FACTOR);
+        // 加入元素
         putAll(m);
     }
 
@@ -318,11 +333,13 @@ public class WeakHashMap<K,V>
 
     /**
      * Value representing null keys inside tables.
+     * 看来不支持Null，所以才出现这个默认的Object
      */
     private static final Object NULL_KEY = new Object();
 
     /**
      * Use NULL_KEY for key if it is null.
+     * 如果是Null，就用默认的key
      */
     private static Object maskNull(Object key) {
         return (key == null) ? NULL_KEY : key;
@@ -332,6 +349,7 @@ public class WeakHashMap<K,V>
      * Returns internal representation of null key back to caller as null.
      */
     static Object unmaskNull(Object key) {
+        // 如果是Null_Key，直接返回Null，而不是key给客户端
         return (key == NULL_KEY) ? null : key;
     }
 
@@ -340,6 +358,7 @@ public class WeakHashMap<K,V>
      * default uses Object.equals.
      */
     private static boolean eq(Object x, Object y) {
+        // 等于的返回，就是帮忙比较x和y的值而已
         return x == y || x.equals(y);
     }
 
@@ -349,13 +368,17 @@ public class WeakHashMap<K,V>
      * critical because HashMap uses power-of-two length hash tables, that
      * otherwise encounter collisions for hashCodes that do not differ
      * in lower bits.
+     *
+     * hash方法
      */
     int hash(Object k) {
 
         int h;
         if (useAltHashing) {
-            h = hashSeed;
+            // 如果使用可变的hash key
+            h = hashSeed; // 找到hash种子
             if (k instanceof String) {
+                // 如果是String的话，直接hash
                 return sun.misc.Hashing.stringHash32((String) k);
             } else {
                 h ^= k.hashCode();
@@ -380,14 +403,17 @@ public class WeakHashMap<K,V>
 
     /**
      * Expunges stale entries from the table.
+     * 从桶中移除失效的key-value（Entry）
      */
     private void expungeStaleEntries() {
+        // 从Queue中取被回收的数据，然后进行删除操作
         for (Object x; (x = queue.poll()) != null; ) {
             synchronized (queue) {
                 @SuppressWarnings("unchecked")
                     Entry<K,V> e = (Entry<K,V>) x;
                 int i = indexFor(e.hash, table.length);
 
+                // 进行删除的操作
                 Entry<K,V> prev = table[i];
                 Entry<K,V> p = prev;
                 while (p != null) {
@@ -512,11 +538,15 @@ public class WeakHashMap<K,V>
      *         previously associated <tt>null</tt> with <tt>key</tt>.)
      */
     public V put(K key, V value) {
+        // null key的处理
         Object k = maskNull(key);
         int h = hash(k);
+        // 获取所有的桶
         Entry<K,V>[] tab = getTable();
+        // 找到链表的头
         int i = indexFor(h, tab.length);
 
+        // 遍历链表，查找元素，有替换
         for (Entry<K,V> e = tab[i]; e != null; e = e.next) {
             if (h == e.hash && eq(k, e.get())) {
                 V oldValue = e.value;
@@ -527,7 +557,9 @@ public class WeakHashMap<K,V>
         }
 
         modCount++;
+        // 获取链表头
         Entry<K,V> e = tab[i];
+        // 这里需要注意，这是头部插入法
         tab[i] = new Entry<>(k, value, queue, h, e);
         if (++size >= threshold)
             resize(tab.length * 2);
@@ -772,6 +804,8 @@ public class WeakHashMap<K,V>
     /**
      * The entries in this hash table extend WeakReference, using its main ref
      * field as the key.
+     *
+     * 原来将Entry定义为WeakReference，这样就会自动消失。
      */
     private static class Entry<K,V> extends WeakReference<Object> implements Map.Entry<K,V> {
         V value;
@@ -779,11 +813,12 @@ public class WeakHashMap<K,V>
         Entry<K,V> next;
 
         /**
-         * Creates new entry.
+         * 创建一个新的Entry
          */
         Entry(Object key, V value,
               ReferenceQueue<Object> queue,
               int hash, Entry<K,V> next) {
+            // 传入ReferenceQueue和hash，这个可能是在已有头Entry的基础上使用
             super(key, queue);
             this.value = value;
             this.hash  = hash;
@@ -792,7 +827,7 @@ public class WeakHashMap<K,V>
 
         @SuppressWarnings("unchecked")
         public K getKey() {
-            return (K) WeakHashMap.unmaskNull(get());
+            return (K) WeakHashMap.unmaskNull(get()); // 防止Null_Key的出现，取代为null
         }
 
         public V getValue() {

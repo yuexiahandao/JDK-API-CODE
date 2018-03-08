@@ -51,6 +51,8 @@ import java.io.Closeable;
  * @author Mark Reinhold
  * @author JSR-51 Expert Group
  * @since 1.4
+ *
+ * 管道是一个接口
  */
 
 public interface Channel extends Closeable {
@@ -59,6 +61,8 @@ public interface Channel extends Closeable {
      * Tells whether or not this channel is open.  </p>
      *
      * @return <tt>true</tt> if, and only if, this channel is open
+     *
+     * 检查管道是否是打开状态
      */
     public boolean isOpen();
 
@@ -78,6 +82,8 @@ public interface Channel extends Closeable {
      * effect. </p>
      *
      * @throws  IOException  If an I/O error occurs
+     *
+     * 关闭管道。
      */
     public void close() throws IOException;
 

@@ -56,6 +56,8 @@ package java.util;
  * @see Enumeration
  * @see List#listIterator()
  * @since   1.2
+ *
+ * 数组列表的迭代器实现
  */
 public interface ListIterator<E> extends Iterator<E> {
     // Query Operations

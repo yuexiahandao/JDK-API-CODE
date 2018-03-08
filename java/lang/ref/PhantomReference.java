@@ -48,6 +48,8 @@ package java.lang.ref;
  *
  * @author   Mark Reinhold
  * @since    1.2
+ *
+ * 虚引用
  */
 
 public class PhantomReference<T> extends Reference<T> {

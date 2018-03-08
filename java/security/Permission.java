@@ -78,6 +78,7 @@ public abstract class Permission implements Guard, java.io.Serializable {
      */
 
     public Permission(String name) {
+        // 取一个名字
         this.name = name;
     }
 
@@ -100,7 +101,9 @@ public abstract class Permission implements Guard, java.io.Serializable {
      *
      */
     public void checkGuard(Object object) throws SecurityException {
+        // 检查安全权限
         SecurityManager sm = System.getSecurityManager();
+        // 检查当前的权限
         if (sm != null) sm.checkPermission(this);
     }
 
@@ -121,6 +124,7 @@ public abstract class Permission implements Guard, java.io.Serializable {
      * false if not.
      */
 
+    // 检查是否特定权限行为，被当前对象的行为实现。这个必须被Permission的子类实现。
     public abstract boolean implies(Permission permission);
 
     /**
@@ -190,6 +194,7 @@ public abstract class Permission implements Guard, java.io.Serializable {
      *
      * @return the actions of this Permission.
      *
+     * 以字符串的形式返回操作。
      */
 
     public abstract String getActions();
@@ -207,6 +212,8 @@ public abstract class Permission implements Guard, java.io.Serializable {
      *
      * @return a new PermissionCollection object for this type of Permission, or
      * null if one is not defined.
+     *
+     * 对于给定的Permission对象，返回一个空的PermissionCollection集。
      */
 
     public PermissionCollection newPermissionCollection() {

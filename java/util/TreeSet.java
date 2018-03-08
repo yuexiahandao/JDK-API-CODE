@@ -94,14 +94,18 @@ public class TreeSet<E> extends AbstractSet<E>
 {
     /**
      * The backing map.
+     * 保存的NavigableMap
      */
     private transient NavigableMap<E,Object> m;
 
     // Dummy value to associate with an Object in the backing Map
+    // 用于存放的值
     private static final Object PRESENT = new Object();
 
     /**
      * Constructs a set backed by the specified navigable map.
+     *
+     * map这个类可以从外部传入，注意这里是NavigableMap的Map类型，而这个类型目前只有TreeMap实现，ConcreteTreeMap也有实现。
      */
     TreeSet(NavigableMap<E,Object> m) {
         this.m = m;
@@ -119,6 +123,8 @@ public class TreeSet<E> extends AbstractSet<E>
      * attempts to add a string element to a set whose elements are
      * integers), the {@code add} call will throw a
      * {@code ClassCastException}.
+     *
+     * 通过TreeMap创建
      */
     public TreeSet() {
         this(new TreeMap<E,Object>());
@@ -138,6 +144,7 @@ public class TreeSet<E> extends AbstractSet<E>
      *        ordering} of the elements will be used.
      */
     public TreeSet(Comparator<? super E> comparator) {
+        // 通过TreeMap实现
         this(new TreeMap<>(comparator));
     }
 
@@ -178,6 +185,7 @@ public class TreeSet<E> extends AbstractSet<E>
      * @return an iterator over the elements in this set in ascending order
      */
     public Iterator<E> iterator() {
+        // 迭代也是通过TreeMap实现
         return m.navigableKeySet().iterator();
     }
 
@@ -195,6 +203,7 @@ public class TreeSet<E> extends AbstractSet<E>
      * @since 1.6
      */
     public NavigableSet<E> descendingSet() {
+        // 通过treeSet实现
         return new TreeSet<>(m.descendingMap());
     }
 
@@ -252,6 +261,7 @@ public class TreeSet<E> extends AbstractSet<E>
      *         does not permit null elements
      */
     public boolean add(E e) {
+        // 通过TreeSet实现。
         return m.put(e, PRESENT)==null;
     }
 
@@ -273,6 +283,7 @@ public class TreeSet<E> extends AbstractSet<E>
      *         does not permit null elements
      */
     public boolean remove(Object o) {
+        // 删除之前，还是需要判断PRESENT的
         return m.remove(o)==PRESENT;
     }
 

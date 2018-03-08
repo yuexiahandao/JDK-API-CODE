@@ -32,6 +32,8 @@ package java.util;
  * @author Josh Bloch
  * @since 1.5
  * @serial exclude
+ *
+ * EnumSet的私有实现，不是public的类，只能在EnumSet中使用。64个元素以内使用。
  */
 class RegularEnumSet<E extends Enum<E>> extends EnumSet<E> {
     private static final long serialVersionUID = 3411599620347842686L;

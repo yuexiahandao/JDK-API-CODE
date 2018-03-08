@@ -38,17 +38,27 @@ import java.util.Objects;
  *
  * @since  1.4
  * @author Josh Bloch
+ *
+ * StackTraceElement是堆栈的元素，就像Throwable#getStackTrace()返回的一样。
+ * 每个元素代表一个唯一栈帧。所有栈帧除了栈顶的那个栈帧，都代表一个方法调用。
+ * 栈顶的帧代表执行点，在那个点，站追踪会被创建。一般来说，这是创建与堆栈跟踪相对应的throwable的点。
  */
 public final class StackTraceElement implements java.io.Serializable {
     // Normally initialized by VM (public constructor added in 1.5)
+    // 申明的类名
     private String declaringClass;
+    // 方法名称
     private String methodName;
+    // 文件名称
     private String fileName;
+    // 行号
     private int    lineNumber;
 
     /**
      * Creates a stack trace element representing the specified execution
      * point.
+     *
+     * 创建一个栈追踪元素，代表一个特定的执行点
      *
      * @param declaringClass the fully qualified name of the class containing
      *        the execution point represented by the stack trace element
@@ -137,6 +147,8 @@ public final class StackTraceElement implements java.io.Serializable {
      *
      * @return {@code true} if the method containing the execution point
      *         represented by this stack trace element is a native method.
+     *
+     * 是不是本地方法，lineNumber == -2;
      */
     public boolean isNativeMethod() {
         return lineNumber == -2;

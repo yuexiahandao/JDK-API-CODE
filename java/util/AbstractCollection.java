@@ -56,6 +56,8 @@ package java.util;
  * @author  Neal Gafter
  * @see Collection
  * @since 1.2
+ *
+ * Collection的基础实现
  */
 
 public abstract class AbstractCollection<E> implements Collection<E> {
@@ -97,6 +99,7 @@ public abstract class AbstractCollection<E> implements Collection<E> {
      */
     public boolean contains(Object o) {
         Iterator<E> it = iterator();
+        // 查找是否存在某个元素，包括null
         if (o==null) {
             while (it.hasNext())
                 if (it.next()==null)
@@ -137,6 +140,7 @@ public abstract class AbstractCollection<E> implements Collection<E> {
         Iterator<E> it = iterator();
         for (int i = 0; i < r.length; i++) {
             if (! it.hasNext()) // fewer elements than expected
+                // 扩容返回，如果没有扩容其实就是直接返回
                 return Arrays.copyOf(r, i);
             r[i] = it.next();
         }
@@ -172,6 +176,7 @@ public abstract class AbstractCollection<E> implements Collection<E> {
      */
     public <T> T[] toArray(T[] a) {
         // Estimate size of array; be prepared to see more or fewer elements
+        // a数组空间不够就进行扩容
         int size = size();
         T[] r = a.length >= size ? a :
                   (T[])java.lang.reflect.Array
@@ -181,6 +186,7 @@ public abstract class AbstractCollection<E> implements Collection<E> {
         for (int i = 0; i < r.length; i++) {
             if (! it.hasNext()) { // fewer elements than expected
                 if (a != r)
+                    // 拷贝内容进行返回
                     return Arrays.copyOf(r, i);
                 r[i] = null; // null-terminate
                 return r;
@@ -195,6 +201,8 @@ public abstract class AbstractCollection<E> implements Collection<E> {
      * Some VMs reserve some header words in an array.
      * Attempts to allocate larger arrays may result in
      * OutOfMemoryError: Requested array size exceeds VM limit
+     *
+     * 这个是数组可以分配的最大大小，目前这个类中应该是没限制的
      */
     private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
 
@@ -207,6 +215,8 @@ public abstract class AbstractCollection<E> implements Collection<E> {
      * @param it the in-progress iterator over this collection
      * @return array containing the elements in the given array, plus any
      *         further elements returned by the iterator, trimmed to size
+     *
+     * 扩容并加入新的元素
      */
     private static <T> T[] finishToArray(T[] r, Iterator<?> it) {
         int i = r.length;
@@ -249,6 +259,7 @@ public abstract class AbstractCollection<E> implements Collection<E> {
      * @throws IllegalStateException         {@inheritDoc}
      */
     public boolean add(E e) {
+        // 此类暂不支持add方法
         throw new UnsupportedOperationException();
     }
 
@@ -271,6 +282,7 @@ public abstract class AbstractCollection<E> implements Collection<E> {
     public boolean remove(Object o) {
         Iterator<E> it = iterator();
         if (o==null) {
+            // 如果是null的话，也会进行删除
             while (it.hasNext()) {
                 if (it.next()==null) {
                     it.remove();
@@ -305,6 +317,7 @@ public abstract class AbstractCollection<E> implements Collection<E> {
      */
     public boolean containsAll(Collection<?> c) {
         for (Object e : c)
+            // 逐个查找
             if (!contains(e))
                 return false;
         return true;
@@ -331,6 +344,7 @@ public abstract class AbstractCollection<E> implements Collection<E> {
     public boolean addAll(Collection<? extends E> c) {
         boolean modified = false;
         for (E e : c)
+            // 逐个添加
             if (add(e))
                 modified = true;
         return modified;

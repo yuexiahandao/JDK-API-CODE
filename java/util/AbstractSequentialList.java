@@ -114,6 +114,7 @@ public abstract class AbstractSequentialList<E> extends AbstractList<E> {
         try {
             ListIterator<E> e = listIterator(index);
             E oldVal = e.next();
+            // 设置index索引的值
             e.set(element);
             return oldVal;
         } catch (NoSuchElementException exc) {
@@ -248,6 +249,7 @@ public abstract class AbstractSequentialList<E> extends AbstractList<E> {
      * @return a list iterator over the elements in this list (in proper
      *         sequence)
      * @throws IndexOutOfBoundsException {@inheritDoc}
+     * // index 是第一个需要被访问的对象，也就是迭代器开始的对象
      */
     public abstract ListIterator<E> listIterator(int index);
 }

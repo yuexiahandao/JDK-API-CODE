@@ -105,6 +105,7 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
      *         prevents it from being added to this list
      */
     public boolean add(E e) {
+        // 默认是尾部添加
         add(size(), e);
         return true;
     }
@@ -145,6 +146,7 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
      * @throws IndexOutOfBoundsException     {@inheritDoc}
      */
     public void add(int index, E element) {
+        // 在某个位置加入元素，暂不支持
         throw new UnsupportedOperationException();
     }
 
@@ -176,6 +178,7 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
      */
     public int indexOf(Object o) {
         ListIterator<E> it = listIterator();
+        // null也会支持
         if (o==null) {
             while (it.hasNext())
                 if (it.next()==null)
@@ -201,6 +204,7 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
      */
     public int lastIndexOf(Object o) {
         ListIterator<E> it = listIterator(size());
+        // null也支持
         if (o==null) {
             while (it.hasPrevious())
                 if (it.previous()==null)
@@ -231,6 +235,7 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
      *         is not supported by this list
      */
     public void clear() {
+        // 调用removeRange进行实现，但是会存在并发的问题吧！
         removeRange(0, size());
     }
 
@@ -327,6 +332,7 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
         return new ListItr(index);
     }
 
+    // 生成迭代器
     private class Itr implements Iterator<E> {
         /**
          * Index of element to be returned by subsequent call to next.
@@ -348,6 +354,8 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
         int expectedModCount = modCount;
 
         public boolean hasNext() {
+            // 这是一个内部类的使用方式，这样就不用将需要迭代的数组传进来了
+            // 利用了java内部类的机制来实现，实在很棒
             return cursor != size();
         }
 
@@ -387,6 +395,9 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
         }
     }
 
+    /**
+     * list的迭代器实现
+     */
     private class ListItr extends Itr implements ListIterator<E> {
         ListItr(int index) {
             cursor = index;
@@ -481,6 +492,7 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
      *         {@code (fromIndex > toIndex)}
      */
     public List<E> subList(int fromIndex, int toIndex) {
+        // 如果是RandomAccess的实例，那么就创建RandomAccessSubList实例，否则就创建SubList实例
         return (this instanceof RandomAccess ?
                 new RandomAccessSubList<>(this, fromIndex, toIndex) :
                 new SubList<>(this, fromIndex, toIndex));
@@ -565,6 +577,7 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
      * @param toIndex index after last element to be removed
      */
     protected void removeRange(int fromIndex, int toIndex) {
+        // 删除方式
         ListIterator<E> it = listIterator(fromIndex);
         for (int i=0, n=toIndex-fromIndex; i<n; i++) {
             it.next();
@@ -600,6 +613,7 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
      */
     protected transient int modCount = 0;
 
+    // 索引检查（迭代器会使用的）
     private void rangeCheckForAdd(int index) {
         if (index < 0 || index > size())
             throw new IndexOutOfBoundsException(outOfBoundsMsg(index));

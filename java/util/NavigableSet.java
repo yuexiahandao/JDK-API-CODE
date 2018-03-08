@@ -82,6 +82,8 @@ package java.util;
  * @author Josh Bloch
  * @param <E> the type of elements maintained by this set
  * @since 1.6
+ *
+ * 树形结构的Set操作规范接口
  */
 public interface NavigableSet<E> extends SortedSet<E> {
     /**

@@ -67,7 +67,7 @@ import sun.security.action.GetPropertyAction;
  */
 
 public abstract class SelectorProvider {
-
+    // 用于加锁的对象
     private static final Object lock = new Object();
     private static SelectorProvider provider = null;
 
@@ -79,18 +79,23 @@ public abstract class SelectorProvider {
      *          {@link RuntimePermission}<tt>("selectorProvider")</tt>
      */
     protected SelectorProvider() {
+        // 获取安全管理
         SecurityManager sm = System.getSecurityManager();
         if (sm != null)
+            // 检查有无selectorProvider权限
             sm.checkPermission(new RuntimePermission("selectorProvider"));
     }
 
     private static boolean loadProviderFromProperty() {
+        // 获取java.nio.channels.spi.SelectorProvider的SPI接口的实现类
         String cn = System.getProperty("java.nio.channels.spi.SelectorProvider");
         if (cn == null)
             return false;
         try {
+            // 加载类，使用系统类加载器
             Class<?> c = Class.forName(cn, true,
                                        ClassLoader.getSystemClassLoader());
+            // 创建对象
             provider = (SelectorProvider)c.newInstance();
             return true;
         } catch (ClassNotFoundException x) {
@@ -105,7 +110,7 @@ public abstract class SelectorProvider {
     }
 
     private static boolean loadProviderAsService() {
-
+        // 通过ServiceLoader查找到相应的SelectorProvider才行
         ServiceLoader<SelectorProvider> sl =
             ServiceLoader.load(SelectorProvider.class,
                                ClassLoader.getSystemClassLoader());
@@ -114,7 +119,7 @@ public abstract class SelectorProvider {
             try {
                 if (!i.hasNext())
                     return false;
-                provider = i.next();
+                provider = i.next();// 找到一个实现即可，不同的类加载器，找到的实现可能也不同
                 return true;
             } catch (ServiceConfigurationError sce) {
                 if (sce.getCause() instanceof SecurityException) {
@@ -167,11 +172,15 @@ public abstract class SelectorProvider {
                 return provider;
             return AccessController.doPrivileged(
                 new PrivilegedAction<SelectorProvider>() {
+                    // 下面的方法在特权下执行
                     public SelectorProvider run() {
+                            // 先从属性里面找
                             if (loadProviderFromProperty())
                                 return provider;
+                            // 在从ServiceLoader中加载
                             if (loadProviderAsService())
                                 return provider;
+                            // 默认实现
                             provider = sun.nio.ch.DefaultSelectorProvider.create();
                             return provider;
                         }

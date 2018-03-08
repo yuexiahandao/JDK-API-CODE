@@ -63,6 +63,8 @@ import java.util.Map.Entry;
  * @see Map
  * @see Collection
  * @since 1.2
+ *
+ * 基本的实现
  */
 
 public abstract class AbstractMap<K,V> implements Map<K,V> {

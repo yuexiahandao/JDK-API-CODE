@@ -44,17 +44,22 @@ public class SecureClassLoader extends ClassLoader {
      * If initialization succeed this is set to true and security checks will
      * succeed. Otherwise the object is not initialized and the object is
      * useless.
+     *
+     * 检查是否初始化过
      */
     private final boolean initialized;
 
     // HashMap that maps CodeSource to ProtectionDomain
     // @GuardedBy("pdcache")
+    // 用于保存CodeSource和ProtectionDomain的关系
     private final HashMap<CodeSource, ProtectionDomain> pdcache =
                         new HashMap<>(11);
 
+    // 又见这个Debug类
     private static final Debug debug = Debug.getInstance("scl");
 
     static {
+        // 注册为平行类加载器，这样加载类的时候，锁不是在ClassLoader上，而是加载的类上面
         ClassLoader.registerAsParallelCapable();
     }
 
@@ -73,6 +78,7 @@ public class SecureClassLoader extends ClassLoader {
      * @see SecurityManager#checkCreateClassLoader
      */
     protected SecureClassLoader(ClassLoader parent) {
+        // 通用的构造方法
         super(parent);
         // this is to make the stack depth consistent with 1.1
         SecurityManager security = System.getSecurityManager();
@@ -139,6 +145,7 @@ public class SecureClassLoader extends ClassLoader {
                                          byte[] b, int off, int len,
                                          CodeSource cs)
     {
+        // 定义一个类
         return defineClass(name, b, off, len, getProtectionDomain(cs));
     }
 
@@ -199,12 +206,16 @@ public class SecureClassLoader extends ClassLoader {
         if (cs == null)
             return null;
 
+        // 创建一个新的ProtectionDomain
         ProtectionDomain pd = null;
         synchronized (pdcache) {
             pd = pdcache.get(cs);
             if (pd == null) {
+                // 创建新的Permissions数组
                 PermissionCollection perms = getPermissions(cs);
+                // 进行环境装配打包
                 pd = new ProtectionDomain(cs, perms, this, null);
+                // 缓存数据
                 pdcache.put(cs, pd);
                 if (debug != null) {
                     debug.println(" getPermissions "+ pd);

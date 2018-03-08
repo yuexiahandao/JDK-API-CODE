@@ -148,10 +148,12 @@ public class ArrayList<E> extends AbstractList<E>
      * @throws NullPointerException if the specified collection is null
      */
     public ArrayList(Collection<? extends E> c) {
+        // 先转化为数组
         elementData = c.toArray();
         size = elementData.length;
         // c.toArray might (incorrectly) not return Object[] (see 6260652)
         if (elementData.getClass() != Object[].class)
+            // 内容不够时，进行扩容处理，Arrays.copyOf很有作用
             elementData = Arrays.copyOf(elementData, size, Object[].class);
     }
 
@@ -163,6 +165,7 @@ public class ArrayList<E> extends AbstractList<E>
     public void trimToSize() {
         modCount++;
         int oldCapacity = elementData.length;
+        // 将数组大小设置为内容的长度，省去空间。
         if (size < oldCapacity) {
             elementData = Arrays.copyOf(elementData, size);
         }
@@ -174,6 +177,7 @@ public class ArrayList<E> extends AbstractList<E>
      * specified by the minimum capacity argument.
      *
      * @param   minCapacity   the desired minimum capacity
+     * 保证空间的最小大小
      */
     public void ensureCapacity(int minCapacity) {
         if (minCapacity > 0)
@@ -204,6 +208,7 @@ public class ArrayList<E> extends AbstractList<E>
     private void grow(int minCapacity) {
         // overflow-conscious code
         int oldCapacity = elementData.length;
+        // 0.5倍向下取整扩容
         int newCapacity = oldCapacity + (oldCapacity >> 1);
         if (newCapacity - minCapacity < 0)
             newCapacity = minCapacity;
@@ -261,6 +266,7 @@ public class ArrayList<E> extends AbstractList<E>
      */
     public int indexOf(Object o) {
         if (o == null) {
+            // 支持null
             for (int i = 0; i < size; i++)
                 if (elementData[i]==null)
                     return i;
@@ -358,6 +364,7 @@ public class ArrayList<E> extends AbstractList<E>
         if (a.length < size)
             // Make a new array of a's runtime type, but my contents:
             return (T[]) Arrays.copyOf(elementData, size, a.getClass());
+        // 调用此方法复制参数
         System.arraycopy(elementData, 0, a, 0, size);
         if (a.length > size)
             a[size] = null;
@@ -496,6 +503,7 @@ public class ArrayList<E> extends AbstractList<E>
         if (numMoved > 0)
             System.arraycopy(elementData, index+1, elementData, index,
                              numMoved);
+        // 需要gc去做一些操作
         elementData[--size] = null; // Let gc do its work
     }
 
@@ -588,6 +596,7 @@ public class ArrayList<E> extends AbstractList<E>
                          numMoved);
 
         // Let gc do its work
+        // 都是在清除后面的元素（先移动）
         int newSize = size - (toIndex-fromIndex);
         while (size != newSize)
             elementData[--size] = null;

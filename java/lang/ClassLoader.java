@@ -188,6 +188,8 @@ public abstract class ClassLoader {
 
     /**
      * Encapsulates the set of parallel capable loader types.
+     *
+     * 封装的并行类型加载器的Set集
      */
     private static class ParallelLoaders {
         private ParallelLoaders() {}
@@ -195,8 +197,10 @@ public abstract class ClassLoader {
         // the set of parallel capable loader types
         private static final Set<Class<? extends ClassLoader>> loaderTypes =
             Collections.newSetFromMap(
+                    // 这是一个WeakHashMap的引用
                 new WeakHashMap<Class<? extends ClassLoader>, Boolean>());
         static {
+            // ClassLoader就是一个并行类加载器
             synchronized (loaderTypes) { loaderTypes.add(ClassLoader.class); }
         }
 
@@ -204,6 +208,8 @@ public abstract class ClassLoader {
          * Registers the given class loader type as parallel capabale.
          * Returns {@code true} is successfully registered; {@code false} if
          * loader's super class is not registered.
+         *
+         * 加入新的并行类加载器
          */
         static boolean register(Class<? extends ClassLoader> c) {
             synchronized (loaderTypes) {
@@ -224,6 +230,8 @@ public abstract class ClassLoader {
         /**
          * Returns {@code true} if the given class loader type is
          * registered as parallel capable.
+         *
+         * 检查是不是并行类加载器
          */
         static boolean isRegistered(Class<? extends ClassLoader> c) {
             synchronized (loaderTypes) {
@@ -250,6 +258,7 @@ public abstract class ClassLoader {
 
     // The "default" domain. Set as the default ProtectionDomain on newly
     // created classes.
+    // 与JAAS相关的类
     private final ProtectionDomain defaultDomain =
         new ProtectionDomain(new CodeSource(null, (Certificate[]) null),
                              null, this, null);
@@ -404,6 +413,7 @@ public abstract class ClassLoader {
             // First, check if the class has already been loaded
             Class c = findLoadedClass(name);
             if (c == null) {
+                // 取得时间
                 long t0 = System.nanoTime();
                 try {
                     if (parent != null) {
@@ -1234,6 +1244,9 @@ public abstract class ClassLoader {
      *          parallel capable and false if otherwise.
      *
      * @since   1.7
+     *
+     * 大家知道在JDK7上，如果调用Classloader.registerAsParallelCapable方法，则会开启并行类加载功能，
+     * 把锁的级别从ClassLoader对象本身，降低为要加载的类名这个级别。换句话说只要多线程加载的不是同一个类的话，loadClass方法都不会锁住。
      */
     protected static boolean registerAsParallelCapable() {
         return ParallelLoaders.register(getCaller(1));

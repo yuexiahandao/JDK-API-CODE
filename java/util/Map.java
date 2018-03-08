@@ -113,6 +113,9 @@ package java.util;
  * @see Collection
  * @see Set
  * @since 1.2
+ *
+ *
+ * Map标准接口定义
  */
 public interface Map<K,V> {
     // Query Operations

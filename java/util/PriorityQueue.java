@@ -228,6 +228,7 @@ public class PriorityQueue<E> extends AbstractQueue<E>
     }
 
     private void initFromPriorityQueue(PriorityQueue<? extends E> c) {
+        // 直接进行赋值
         if (c.getClass() == PriorityQueue.class) {
             this.queue = c.toArray();
             this.size = c.size();
@@ -240,9 +241,11 @@ public class PriorityQueue<E> extends AbstractQueue<E>
         Object[] a = c.toArray();
         // If c.toArray incorrectly doesn't return Object[], copy it.
         if (a.getClass() != Object[].class)
+            // 转换格式
             a = Arrays.copyOf(a, a.length, Object[].class);
         int len = a.length;
         if (len == 1 || this.comparator != null)
+            // 检查有无null值
             for (int i = 0; i < len; i++)
                 if (a[i] == null)
                     throw new NullPointerException();
@@ -320,12 +323,16 @@ public class PriorityQueue<E> extends AbstractQueue<E>
             throw new NullPointerException();
         modCount++;
         int i = size;
+        // 这是队列满了才进行扩容吗？
         if (i >= queue.length)
+            // 最起码保证当前容量能加1
             grow(i + 1);
         size = i + 1;
         if (i == 0)
+            // 如果没有元素的话，不用移位操作
             queue[0] = e;
         else
+            // 如果队列有元素.就要通过当前位置
             siftUp(i, e);
         return true;
     }
@@ -623,6 +630,7 @@ public class PriorityQueue<E> extends AbstractQueue<E>
      * @param x the item to insert
      */
     private void siftUp(int k, E x) {
+        // 是否使用comparator比较器
         if (comparator != null)
             siftUpUsingComparator(k, x);
         else
@@ -632,6 +640,7 @@ public class PriorityQueue<E> extends AbstractQueue<E>
     private void siftUpComparable(int k, E x) {
         Comparable<? super E> key = (Comparable<? super E>) x;
         while (k > 0) {
+            // 这个是二分比较法
             int parent = (k - 1) >>> 1;
             Object e = queue[parent];
             if (key.compareTo((E) e) >= 0)
@@ -644,13 +653,17 @@ public class PriorityQueue<E> extends AbstractQueue<E>
 
     private void siftUpUsingComparator(int k, E x) {
         while (k > 0) {
+            // 很像是在使用二分法
             int parent = (k - 1) >>> 1;
+            // 取得parent处的元素
             Object e = queue[parent];
             if (comparator.compare(x, (E) e) >= 0)
                 break;
+            // 将e移出来，放到后面，原来是这样的。
             queue[k] = e;
             k = parent;
         }
+        // 如果k<0,不是会有异常吗？
         queue[k] = x;
     }
 

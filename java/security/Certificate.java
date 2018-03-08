@@ -63,6 +63,7 @@ import java.util.Date;
  * @see java.security.cert.Certificate
  */
 @Deprecated
+// 证书的接口
 public interface Certificate {
 
     /**
@@ -74,6 +75,8 @@ public interface Certificate {
      *
      * @return the guarantor which guaranteed the principal-key
      * binding.
+     *
+     * Guarantor（担保人）原则
      */
     public abstract Principal getGuarantor();
 
@@ -91,6 +94,8 @@ public interface Certificate {
      *
      * @return the public key that this certificate certifies belongs
      * to a particular principal.
+     *
+     * 关于public Key
      */
     public abstract PublicKey getPublicKey();
 
@@ -141,6 +146,8 @@ public interface Certificate {
      * and <code>decode</code> methods.
      *
      * @return the name of the coding format.
+     *
+     * 代码格式的名称
      */
     public abstract String getFormat();
 

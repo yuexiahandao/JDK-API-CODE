@@ -91,6 +91,7 @@ public class CodeSource implements java.io.Serializable {
         this.location = url;
 
         // Copy the supplied certs
+        // 复制提供的证书
         if (certs != null) {
             this.certs = certs.clone();
         }

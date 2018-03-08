@@ -111,6 +111,7 @@ public class LinkedList<E>
      *
      * @param  c the collection whose elements are to be placed into this list
      * @throws NullPointerException if the specified collection is null
+     * 加入所有的参数
      */
     public LinkedList(Collection<? extends E> c) {
         this();
@@ -954,11 +955,13 @@ public class LinkedList<E>
         }
     }
 
+    // 内部的节点类
     private static class Node<E> {
         E item;
         Node<E> next;
         Node<E> prev;
 
+        // 这个Node只有这个构造方法
         Node(Node<E> prev, E element, Node<E> next) {
             this.item = element;
             this.next = next;

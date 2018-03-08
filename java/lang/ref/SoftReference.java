@@ -65,6 +65,8 @@ public class SoftReference<T> extends Reference<T> {
 
     /**
      * Timestamp clock, updated by the garbage collector
+     *
+     * 时间戳时钟，垃圾回收机制更新
      */
     static private long clock;
 
@@ -72,6 +74,8 @@ public class SoftReference<T> extends Reference<T> {
      * Timestamp updated by each invocation of the get method.  The VM may use
      * this field when selecting soft references to be cleared, but it is not
      * required to do so.
+     *
+     * 使用getter的时候会进行更新。当soft引用被声明时，VM使用这个字段，但是这个不是要求
      */
     private long timestamp;
 
@@ -107,6 +111,7 @@ public class SoftReference<T> extends Reference<T> {
      *
      * @return   The object to which this reference refers, or
      *           <code>null</code> if this reference object has been cleared
+     * 使用的时候计数
      */
     public T get() {
         T o = super.get();

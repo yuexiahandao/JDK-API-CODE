@@ -89,6 +89,7 @@ public abstract class Provider extends Properties {
     // Declare serialVersionUID to be compatible with JDK1.1
     static final long serialVersionUID = -4298000515446427739L;
 
+    // 获取Debug
     private static final sun.security.util.Debug debug =
         sun.security.util.Debug.getInstance
         ("provider", "Provider");
@@ -97,6 +98,8 @@ public abstract class Provider extends Properties {
      * The provider name.
      *
      * @serial
+     *
+     * 证书提供者的名称
      */
     private String name;
 
@@ -104,6 +107,8 @@ public abstract class Provider extends Properties {
      * A description of the provider and its services.
      *
      * @serial
+     *
+     * 机构说明
      */
     private String info;
 
@@ -111,10 +116,12 @@ public abstract class Provider extends Properties {
      * The provider version number.
      *
      * @serial
+     *
+     * 版本
      */
     private double version;
 
-
+    // 代码还能这么玩？
     private transient Set<Map.Entry<Object,Object>> entrySet = null;
     private transient int entrySetCallCount = 0;
 
@@ -219,6 +226,8 @@ public abstract class Provider extends Properties {
      * @exception  IOException  if an error occurred when reading from the
      *               input stream.
      * @see java.util.Properties#load
+     *
+     * 从输入流中读取key-Value值
      */
     public synchronized void load(InputStream inStream) throws IOException {
         check("putProviderProperty."+name);

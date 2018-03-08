@@ -126,12 +126,15 @@ import sun.security.jca.GetInstance.Instance;
 public class CertificateFactory {
 
     // The certificate type
+    // 证书的类型
     private String type;
 
     // The provider
+    // 证书提供者
     private Provider provider;
 
     // The provider implementation
+    // 由证书提供者生成
     private CertificateFactorySpi certFacSpi;
 
     /**
@@ -141,6 +144,8 @@ public class CertificateFactory {
      * @param certFacSpi the provider implementation.
      * @param provider the provider.
      * @param type the certificate type.
+     *
+     * 这个构造函数才是值得深入学习的。
      */
     protected CertificateFactory(CertificateFactorySpi certFacSpi,
                                  Provider provider, String type)

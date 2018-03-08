@@ -74,8 +74,10 @@ public class ProtectionDomain {
         // Set up JavaSecurityAccess in SharedSecrets
         // 在SharedSecrets设置好JavaSecurityAccess
         // 设置java安全访问，这里是使用匿名实现类实现的。
+        // 一直在找JavaSecurityAccess的实现类，这里有一个，居然是匿名类难怪找不到。
         SharedSecrets.setJavaSecurityAccess(
             new JavaSecurityAccess() {
+                // 执行交叉特权
                 public <T> T doIntersectionPrivilege(
                     PrivilegedAction<T> action,
                     final AccessControlContext stack,
@@ -91,6 +93,7 @@ public class ProtectionDomain {
                     );
                 }
 
+                // 执行交叉特权
                 public <T> T doIntersectionPrivilege(
                     PrivilegedAction<T> action,
                     AccessControlContext context)
@@ -109,9 +112,11 @@ public class ProtectionDomain {
     private ClassLoader classloader;
 
     /* Principals running-as within this protection domain */
+    // 保护域中执行的规则
     private Principal[] principals;
 
     /* the rights this protection domain is granted */
+    // 保护域绑定的permissions
     private PermissionCollection permissions;
 
     /* if the permissions object has AllPermission */
@@ -123,9 +128,11 @@ public class ProtectionDomain {
 
     /*
      * An object used as a key when the ProtectionDomain is stored in a Map.
+     * ProtectionDomain放入Map中的可以
      */
     final Key key = new Key();
 
+    // 实现需要到dt.jar中找
     private static final Debug debug = Debug.getInstance("domain");
 
     /**
@@ -462,6 +469,7 @@ public class ProtectionDomain {
 
     static {
         SharedSecrets.setJavaSecurityProtectionDomainAccess(
+                // 设置默认的JavaSecurityProtectionDomainAccess
             new JavaSecurityProtectionDomainAccess() {
                 public ProtectionDomainCache getProtectionDomainCache() {
                     return new ProtectionDomainCache() {

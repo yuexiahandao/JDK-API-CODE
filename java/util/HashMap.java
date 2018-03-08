@@ -155,6 +155,7 @@ public class HashMap<K,V>
 
     /**
      * The next size value at which to resize (capacity * load factor).
+     * 下次需要调整到的值
      * @serial
      */
     int threshold;
@@ -195,6 +196,7 @@ public class HashMap<K,V>
             // Unsafe mechanics
         /**
          * Unsafe utilities
+         * 可以查看https://www.cnblogs.com/chenpi/p/5389254.html
          */
         static final sun.misc.Unsafe UNSAFE;
 
@@ -209,6 +211,7 @@ public class HashMap<K,V>
         static final int ALTERNATIVE_HASHING_THRESHOLD;
 
         static {
+            // 读取配置
             String altThreshold = java.security.AccessController.doPrivileged(
                 new sun.security.action.GetPropertyAction(
                     "jdk.map.althashing.threshold"));
@@ -251,6 +254,8 @@ public class HashMap<K,V>
     /**
      * A randomizing value associated with this instance that is applied to
      * hash code of keys to make hash collisions harder to find.
+     *
+     * 生成默认的hash种子，这个在rt.jar包里面
      */
     transient final int hashSeed = sun.misc.Hashing.randomHashSeed(this);
 
@@ -342,17 +347,22 @@ public class HashMap<K,V>
     final int hash(Object k) {
         int h = 0;
         if (useAltHashing) {
+            // 使用可变的hashing
             if (k instanceof String) {
+                // 如果key是String类型，返回stringHash32生成hash
                 return sun.misc.Hashing.stringHash32((String) k);
             }
+            // 从种子节点开始
             h = hashSeed;
         }
 
+        // 种子节点到hashCode或与
         h ^= k.hashCode();
 
         // This function ensures that hashCodes that differ only by
         // constant multiples at each bit position have a bounded
         // number of collisions (approximately 8 at default load factor).
+        // 通过移动或与生成hash
         h ^= (h >>> 20) ^ (h >>> 12);
         return h ^ (h >>> 7) ^ (h >>> 4);
     }

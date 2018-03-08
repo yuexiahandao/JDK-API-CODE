@@ -186,6 +186,7 @@ public abstract class Policy {
      */
     static Policy getPolicyNoCheck()
     {
+        // 默认是没有Policy的
         PolicyInfo pi = policy.get();
         // Use double-check idiom to avoid locking if system-wide policy is
         // already initialized

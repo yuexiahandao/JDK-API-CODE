@@ -176,24 +176,30 @@ import java.util.NoSuchElementException;
  *
  * @author Mark Reinhold
  * @since 1.6
+ *
+ * Service加载器，通过SPI接口开始，一个ServiceLoader加载一个类
  */
 
 public final class ServiceLoader<S>
     implements Iterable<S>
 {
-
+    // Service的接口，前缀：META-INF/services/
     private static final String PREFIX = "META-INF/services/";
 
     // The class or interface representing the service being loaded
+    // 类或者接口代表服务被加载
     private Class<S> service;
 
     // The class loader used to locate, load, and instantiate providers
+    // 类加载器
     private ClassLoader loader;
 
     // Cached providers, in instantiation order
+    // 缓存的提供者，按照实例化顺序
     private LinkedHashMap<String,S> providers = new LinkedHashMap<>();
 
     // The current lazy-lookup iterator
+    // 懒得迭代器
     private LazyIterator lookupIterator;
 
     /**
@@ -208,12 +214,16 @@ public final class ServiceLoader<S>
      * can be installed into a running Java virtual machine.
      */
     public void reload() {
+        // 先清空提供队列
         providers.clear();
+        // 迭代访问，后面再看
         lookupIterator = new LazyIterator(service, loader);
     }
 
     private ServiceLoader(Class<S> svc, ClassLoader cl) {
+        // 类名
         service = svc;
+        // 类加载器
         loader = cl;
         reload();
     }
@@ -221,6 +231,7 @@ public final class ServiceLoader<S>
     private static void fail(Class service, String msg, Throwable cause)
         throws ServiceConfigurationError
     {
+        // 出现服务配置问题
         throw new ServiceConfigurationError(service.getName() + ": " + msg,
                                             cause);
     }
@@ -239,7 +250,7 @@ public final class ServiceLoader<S>
 
     // Parse a single line from the given configuration file, adding the name
     // on the line to the names list.
-    //
+    // 从给的配置文件中解析单行，添加行上的名称到name列表里面去
     private int parseLine(Class service, URL u, BufferedReader r, int lc,
                           List<String> names)
         throws IOException, ServiceConfigurationError
@@ -248,6 +259,7 @@ public final class ServiceLoader<S>
         if (ln == null) {
             return -1;
         }
+        // #号搜索，#号是注释
         int ci = ln.indexOf('#');
         if (ci >= 0) ln = ln.substring(0, ci);
         ln = ln.trim();
@@ -293,10 +305,12 @@ public final class ServiceLoader<S>
         BufferedReader r = null;
         ArrayList<String> names = new ArrayList<>();
         try {
+            // 从url中获取URL
             in = u.openStream();
+            // 包装一下输入流
             r = new BufferedReader(new InputStreamReader(in, "utf-8"));
             int lc = 1;
-            while ((lc = parseLine(service, u, r, lc, names)) >= 0);
+            while ((lc = parseLine(service, u, r, lc, names)) >= 0);// 逐行解析，这个语句很有趣
         } catch (IOException x) {
             fail(service, "Error reading configuration file", x);
         } finally {
@@ -311,16 +325,16 @@ public final class ServiceLoader<S>
     }
 
     // Private inner class implementing fully-lazy provider lookup
-    //
+    // 内部私有类，实现懒全部provider的查找
     private class LazyIterator
         implements Iterator<S>
     {
 
-        Class<S> service;
-        ClassLoader loader;
-        Enumeration<URL> configs = null;
-        Iterator<String> pending = null;
-        String nextName = null;
+        Class<S> service;    // 服务类
+        ClassLoader loader;  // 类加载器
+        Enumeration<URL> configs = null; // URL配置迭代（主要是放置配置文件）
+        Iterator<String> pending = null; // pending状态迭代（解析配置文件存放结果的地方）
+        String nextName = null; // 下一个名字
 
         private LazyIterator(Class<S> service, ClassLoader loader) {
             this.service = service;
@@ -333,19 +347,22 @@ public final class ServiceLoader<S>
             }
             if (configs == null) {
                 try {
+                    // 得到fullName
                     String fullName = PREFIX + service.getName();
-                    if (loader == null)
+                    if (loader == null) // 加载文件
                         configs = ClassLoader.getSystemResources(fullName);
-                    else
+                    else // 当前类加载器加载文件
                         configs = loader.getResources(fullName);
                 } catch (IOException x) {
                     fail(service, "Error locating configuration files", x);
                 }
             }
+            // 暂时不知道应用场景是啥
             while ((pending == null) || !pending.hasNext()) {
                 if (!configs.hasMoreElements()) {
                     return false;
                 }
+                // 进行解析
                 pending = parse(service, configs.nextElement());
             }
             nextName = pending.next();
@@ -360,6 +377,7 @@ public final class ServiceLoader<S>
             nextName = null;
             Class<?> c = null;
             try {
+                // 正式的类进行加载
                 c = Class.forName(cn, false, loader);
             } catch (ClassNotFoundException x) {
                 fail(service,
@@ -370,7 +388,9 @@ public final class ServiceLoader<S>
                      "Provider " + cn  + " not a subtype");
             }
             try {
+                // 实例化加类型转化
                 S p = service.cast(c.newInstance());
+                // 放置服务
                 providers.put(cn, p);
                 return p;
             } catch (Throwable x) {
@@ -428,6 +448,7 @@ public final class ServiceLoader<S>
      *          service
      */
     public Iterator<S> iterator() {
+        // 默认的实现类
         return new Iterator<S>() {
 
             Iterator<Map.Entry<String,S>> knownProviders
@@ -436,12 +457,14 @@ public final class ServiceLoader<S>
             public boolean hasNext() {
                 if (knownProviders.hasNext())
                     return true;
+                // 调用lookupIterator去加载相应的服务
                 return lookupIterator.hasNext();
             }
 
             public S next() {
                 if (knownProviders.hasNext())
                     return knownProviders.next().getValue();
+                // 调用lookupIterator去加载相应的服务
                 return lookupIterator.next();
             }
 
@@ -526,6 +549,7 @@ public final class ServiceLoader<S>
     public static <S> ServiceLoader<S> loadInstalled(Class<S> service) {
         ClassLoader cl = ClassLoader.getSystemClassLoader();
         ClassLoader prev = null;
+        // 一直加载到系统类加载器
         while (cl != null) {
             prev = cl;
             cl = cl.getParent();

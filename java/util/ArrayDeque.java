@@ -92,6 +92,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * thus avoiding head and tail wrapping around to equal each
      * other.  We also guarantee that all array cells not holding
      * deque elements are always null.
+     *
+     * 存放所有的元素
      */
     private transient E[] elements;
 
@@ -99,18 +101,24 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * The index of the element at the head of the deque (which is the
      * element that would be removed by remove() or pop()); or an
      * arbitrary number equal to tail if the deque is empty.
+     *
+     * 头部指针，只能加
      */
     private transient int head;
 
     /**
      * The index at which the next element would be added to the tail
      * of the deque (via addLast(E), add(E), or push(E)).
+     *
+     * 尾部指针，只能减
      */
     private transient int tail;
 
     /**
      * The minimum capacity that we'll use for a newly created deque.
      * Must be a power of 2.
+     *
+     * 最小容量，2的指数倍
      */
     private static final int MIN_INITIAL_CAPACITY = 8;
 
@@ -127,6 +135,8 @@ public class ArrayDeque<E> extends AbstractCollection<E>
         // Tests "<=" because arrays aren't kept full.
         if (numElements >= initialCapacity) {
             initialCapacity = numElements;
+            // 如果不是2的倍数，就进行修正
+            // 根据所给的数组长度，得到一个比该长度大的最小的2^p的真实长度，并建立真实长度的空数组
             initialCapacity |= (initialCapacity >>>  1);
             initialCapacity |= (initialCapacity >>>  2);
             initialCapacity |= (initialCapacity >>>  4);
@@ -143,20 +153,27 @@ public class ArrayDeque<E> extends AbstractCollection<E>
     /**
      * Double the capacity of this deque.  Call only when full, i.e.,
      * when head and tail have wrapped around to become equal.
+     *
+     * 当队列首尾指向同一个引用时，扩充队列的容量为原来的两倍，并对元素重新定位到新数组中
      */
     private void doubleCapacity() {
-        assert head == tail;
+        assert head == tail;// tail=head代表数组满了，一开始tail与head一定不相交，一旦相交就要扩容。
         int p = head;
         int n = elements.length;
         int r = n - p; // number of elements to the right of p
+        // 容量增一倍
         int newCapacity = n << 1;
         if (newCapacity < 0)
             throw new IllegalStateException("Sorry, deque too big");
         Object[] a = new Object[newCapacity];
+        // 拷贝数组head右边的元素，放到新数组的0开始，长度是r
+        // 这里注意，tail<head的情况，不过这边都可以处理（主要还是因为满了的话tail一般都是小于head的）
         System.arraycopy(elements, p, a, 0, r);
+        // 将左侧元素，复制到后面，这个时候head就是0了
         System.arraycopy(elements, 0, a, r, p);
         elements = (E[])a;
         head = 0;
+        // tail为n，是因为队列满了
         tail = n;
     }
 
@@ -166,8 +183,11 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * that the array is large enough to hold all elements in the deque.
      *
      * @return its argument
+     *
+     * 这里注意copyArray的方式，head和tail的区别
      */
     private <T> T[] copyElements(T[] a) {
+        // 这里的返回数据就比较全面
         if (head < tail) {
             System.arraycopy(elements, head, a, 0, size());
         } else if (head > tail) {
@@ -183,6 +203,7 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      * sufficient to hold 16 elements.
      */
     public ArrayDeque() {
+        // 默认初始化16个
         elements = (E[]) new Object[16];
     }
 
@@ -225,6 +246,7 @@ public class ArrayDeque<E> extends AbstractCollection<E>
         if (e == null)
             throw new NullPointerException();
         elements[head = (head - 1) & (elements.length - 1)] = e;
+        // 如果队列满了就进行扩容处理
         if (head == tail)
             doubleCapacity();
     }
@@ -239,8 +261,10 @@ public class ArrayDeque<E> extends AbstractCollection<E>
      */
     public void addLast(E e) {
         if (e == null)
-            throw new NullPointerException();
+            throw new NullPointerException()
+        // tail指向的地方是没有值得的
         elements[tail] = e;
+        // 避免tail+1越界，&操作之后就不用对长度进行取余，主要还是因为2的指数倍
         if ( (tail = (tail + 1) & (elements.length - 1)) == head)
             doubleCapacity();
     }
@@ -292,18 +316,24 @@ public class ArrayDeque<E> extends AbstractCollection<E>
     public E pollFirst() {
         int h = head;
         E result = elements[h]; // Element is null if deque empty
+        // 如果取得值为空，就表示队列空了
         if (result == null)
             return null;
+        // 如果有值就移除
         elements[h] = null;     // Must null out slot
+        // 重新设置head
         head = (h + 1) & (elements.length - 1);
         return result;
     }
 
     public E pollLast() {
+        // tail向后移，防止出现负数
         int t = (tail - 1) & (elements.length - 1);
         E result = elements[t];
+        // 如果为null啥都不做
         if (result == null)
             return null;
+        // 不为null，移除。tail后移
         elements[t] = null;
         tail = t;
         return result;

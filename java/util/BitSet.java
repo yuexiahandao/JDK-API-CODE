@@ -59,15 +59,21 @@ import java.nio.LongBuffer;
  * @author  Michael McCloskey
  * @author  Martin Buchholz
  * @since   JDK1.0
+ *
+ * 进行二进制位的操作
  */
 public class BitSet implements Cloneable, java.io.Serializable {
     /*
      * BitSets are packed into arrays of "words."  Currently a word is
      * a long, which consists of 64 bits, requiring 6 address bits.
      * The choice of word size is determined purely by performance concerns.
+     *
+     * BitSets是被打包进一个words数组里。当前一个word就是一个Long的大小，64个二进制位，需要6个位的地址进行访问。
      */
     private final static int ADDRESS_BITS_PER_WORD = 6;
+    // 2^6=64
     private final static int BITS_PER_WORD = 1 << ADDRESS_BITS_PER_WORD;
+    // 一个字节的最大索引
     private final static int BIT_INDEX_MASK = BITS_PER_WORD - 1;
 
     /* Used to shift left or right for a partial word mask */
@@ -105,6 +111,7 @@ public class BitSet implements Cloneable, java.io.Serializable {
 
     /**
      * Given a bit index, return word index containing it.
+     * 字节索引address/64
      */
     private static int wordIndex(int bitIndex) {
         return bitIndex >> ADDRESS_BITS_PER_WORD;
@@ -136,6 +143,8 @@ public class BitSet implements Cloneable, java.io.Serializable {
 
     /**
      * Creates a new bit set. All bits are initially {@code false}.
+     *
+     * 创建bitSet对象
      */
     public BitSet() {
         initWords(BITS_PER_WORD);
@@ -150,6 +159,8 @@ public class BitSet implements Cloneable, java.io.Serializable {
      * @param  nbits the initial size of the bit set
      * @throws NegativeArraySizeException if the specified initial size
      *         is negative
+     *
+     * 创建多少字节的bitSet
      */
     public BitSet(int nbits) {
         // nbits can't be negative; size 0 is OK
@@ -167,6 +178,8 @@ public class BitSet implements Cloneable, java.io.Serializable {
     /**
      * Creates a bit set using words as the internal representation.
      * The last word (if there is one) must be non-zero.
+     *
+     * 外部传入words
      */
     private BitSet(long[] words) {
         this.words = words;
@@ -188,6 +201,8 @@ public class BitSet implements Cloneable, java.io.Serializable {
      *        of a sequence of bits to be used as the initial bits of the
      *        new bit set
      * @since 1.7
+     *
+     * 根据传入的long数组，创建bitSet
      */
     public static BitSet valueOf(long[] longs) {
         int n;
@@ -430,6 +445,8 @@ public class BitSet implements Cloneable, java.io.Serializable {
      * @param  bitIndex a bit index
      * @throws IndexOutOfBoundsException if the specified index is negative
      * @since  JDK1.0
+     *
+     * 设置某位的值。
      */
     public void set(int bitIndex) {
         if (bitIndex < 0)
@@ -438,6 +455,7 @@ public class BitSet implements Cloneable, java.io.Serializable {
         int wordIndex = wordIndex(bitIndex);
         expandTo(wordIndex);
 
+        // 找到对应的word，进行位操作。
         words[wordIndex] |= (1L << bitIndex); // Restores invariants
 
         checkInvariants();

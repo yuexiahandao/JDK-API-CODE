@@ -82,11 +82,13 @@ public abstract class EnumSet<E extends Enum<E>> extends AbstractSet<E>
 {
     /**
      * The class of all the elements of this set.
+     * 需要指明元素的类型
      */
     final Class<E> elementType;
 
     /**
      * All of the values comprising T.  (Cached for performance.)
+     * 所有值，包括T（为了性能而缓存）
      */
     final Enum[] universe;
 
@@ -124,6 +126,7 @@ public abstract class EnumSet<E extends Enum<E>> extends AbstractSet<E>
      * @throws NullPointerException if <tt>elementType</tt> is null
      */
     public static <E extends Enum<E>> EnumSet<E> allOf(Class<E> elementType) {
+        // elementType中找到所有的值。
         EnumSet<E> result = noneOf(elementType);
         result.addAll();
         return result;

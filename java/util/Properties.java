@@ -112,6 +112,8 @@ import java.io.BufferedWriter;
  * @author  Michael McCloskey
  * @author  Xueming Shen
  * @since   JDK1.0
+ *
+ * 这个类继承自HashTable
  */
 public
 class Properties extends Hashtable<Object,Object> {
@@ -123,6 +125,8 @@ class Properties extends Hashtable<Object,Object> {
     /**
      * A property list that contains default values for any keys not
      * found in this property list.
+     *
+     * 这是用于存放默认的属性的Properties
      *
      * @serial
      */
@@ -139,6 +143,8 @@ class Properties extends Hashtable<Object,Object> {
      * Creates an empty property list with the specified defaults.
      *
      * @param   defaults   the defaults.
+     *
+     * 构造函数可以设置默认的值
      */
     public Properties(Properties defaults) {
         this.defaults = defaults;
@@ -312,6 +318,8 @@ class Properties extends Hashtable<Object,Object> {
      * @throws  IllegalArgumentException if a malformed Unicode escape
      *          appears in the input.
      * @since   1.6
+     *
+     * 通过reader加载Properties
      */
     public synchronized void load(Reader reader) throws IOException {
         load0(new LineReader(reader));
@@ -337,10 +345,12 @@ class Properties extends Hashtable<Object,Object> {
      *             malformed Unicode escape sequence.
      * @since 1.2
      */
+    // 通过输入流加载Properties
     public synchronized void load(InputStream inStream) throws IOException {
         load0(new LineReader(inStream));
     }
 
+    // 真正从流读取值得工具类
     private void load0 (LineReader lr) throws IOException {
         char[] convtBuf = new char[1024];
         int limit;
@@ -398,6 +408,8 @@ class Properties extends Hashtable<Object,Object> {
      * (\u0020, \u0009 and \u000c) from the beginning of a "natural line".
      * Method returns the char length of the "logical line" and stores
      * the line in "lineBuf".
+     *
+     * 真正的Reader类，自我实现的
      */
     class LineReader {
         public LineReader(InputStream inStream) {

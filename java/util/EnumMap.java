@@ -75,6 +75,8 @@ import sun.misc.SharedSecrets;
  * @author Josh Bloch
  * @see EnumSet
  * @since 1.5
+ *
+ * 关于枚举的Map规范
  */
 public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V>
     implements java.io.Serializable, Cloneable
@@ -263,8 +265,10 @@ public class EnumMap<K extends Enum<K>, V> extends AbstractMap<K, V>
      * @throws NullPointerException if the specified key is null
      */
     public V put(K key, V value) {
+        // 类型检查
         typeCheck(key);
 
+        // 找到枚举的索引（注意这里是利用枚举的index作为hash值，的确很好使）
         int index = key.ordinal();
         Object oldValue = vals[index];
         vals[index] = maskNull(value);

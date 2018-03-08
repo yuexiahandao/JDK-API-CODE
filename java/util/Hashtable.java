@@ -121,6 +121,8 @@ import java.io.*;
  * @see     HashMap
  * @see     TreeMap
  * @since JDK1.0
+ *
+ * 线程安全、扩展方式不同。
  */
 public class Hashtable<K,V>
     extends Dictionary<K,V>

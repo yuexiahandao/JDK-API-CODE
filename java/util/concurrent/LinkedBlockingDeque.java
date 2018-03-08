@@ -104,6 +104,7 @@ public class LinkedBlockingDeque<E>
     private static final long serialVersionUID = -387911632671998426L;
 
     /** Doubly-linked list node class */
+    // Deque里面的Node的class定义，这是一个链表结构
     static final class Node<E> {
         /**
          * The item, or null if this node has been removed.
@@ -135,6 +136,7 @@ public class LinkedBlockingDeque<E>
      * Pointer to first node.
      * Invariant: (first == null && last == null) ||
      *            (first.prev == null && first.item != null)
+     * 头部节点
      */
     transient Node<E> first;
 
@@ -142,22 +144,27 @@ public class LinkedBlockingDeque<E>
      * Pointer to last node.
      * Invariant: (first == null && last == null) ||
      *            (last.next == null && last.item != null)
+     * 尾部节点
      */
     transient Node<E> last;
 
     /** Number of items in the deque */
+    // 队列中元素统计
     private transient int count;
 
     /** Maximum number of items in the deque */
+    // 队列容量
     private final int capacity;
 
     /** Main lock guarding all access */
+    // 可重入锁
     final ReentrantLock lock = new ReentrantLock();
 
     /** Condition for waiting takes */
     private final Condition notEmpty = lock.newCondition();
 
     /** Condition for waiting puts */
+    // 等待puts操作的Condition
     private final Condition notFull = lock.newCondition();
 
     /**
@@ -191,16 +198,20 @@ public class LinkedBlockingDeque<E>
      */
     public LinkedBlockingDeque(Collection<? extends E> c) {
         this(Integer.MAX_VALUE);
+        // 取得lock
         final ReentrantLock lock = this.lock;
+        // 从未竞争过，但是对于可视性来说是必要
         lock.lock(); // Never contended, but necessary for visibility
         try {
             for (E e : c) {
                 if (e == null)
                     throw new NullPointerException();
+                // 逐条加入
                 if (!linkLast(new Node<E>(e)))
                     throw new IllegalStateException("Deque full");
             }
         } finally {
+            // 放锁
             lock.unlock();
         }
     }
@@ -223,6 +234,7 @@ public class LinkedBlockingDeque<E>
         else
             f.prev = node;
         ++count;
+        // 通知完成
         notEmpty.signal();
         return true;
     }

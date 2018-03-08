@@ -103,6 +103,8 @@ package java.util;
  * @see Comparator
  * @see ClassCastException
  * @since 1.2
+ *
+ * 这个和sortedMap类似
  */
 
 public interface SortedSet<E> extends Set<E> {

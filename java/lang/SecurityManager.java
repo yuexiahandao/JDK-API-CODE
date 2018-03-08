@@ -286,6 +286,7 @@ class SecurityManager {
     private boolean hasAllPermission()
     {
         try {
+            // 检查是否赋予了所有的权限
             checkPermission(SecurityConstants.ALL_PERMISSION);
             return true;
         } catch (SecurityException se) {
@@ -337,6 +338,7 @@ class SecurityManager {
             if (sm != null) {
                 // ask the currently installed security manager if we
                 // can create a new one.
+                // 我们是不是可以创建一个新的securityManager
                 sm.checkPermission(new RuntimePermission
                                    ("createSecurityManager"));
             }
@@ -405,6 +407,7 @@ class SecurityManager {
         return cl;
     }
 
+    // 默认的类加载器（native方法）
     private native ClassLoader currentClassLoader0();
 
     /**
@@ -464,6 +467,7 @@ class SecurityManager {
      *
      */
     @Deprecated
+    // 返回特定类的栈的深度
     protected native int classDepth(String name);
 
     /**
@@ -502,6 +506,7 @@ class SecurityManager {
      * @see   #checkPermission(java.security.Permission) checkPermission
      */
     @Deprecated
+    // 返回类加载器的栈深度
     protected int classLoaderDepth()
     {
         int depth = classLoaderDepth0();
@@ -570,6 +575,7 @@ class SecurityManager {
      * @see     java.lang.SecurityManager#checkRead(java.lang.String,
      *   java.lang.Object) checkRead
      * @see     java.security.AccessControlContext AccessControlContext
+     * 创建一个对象，指明当前的执行环境。这个方法的使用结果
      */
     public Object getSecurityContext() {
         return AccessController.getContext();

@@ -31,6 +31,8 @@ package java.lang.ref;
  *
  * @author   Mark Reinhold
  * @since    1.2
+ *
+ * 引用队列，在检测到适当的可达性更改后，垃圾收集器会将已注册的引用对象附加到该引用队列。
  */
 
 public class ReferenceQueue<T> {
@@ -40,7 +42,11 @@ public class ReferenceQueue<T> {
      */
     public ReferenceQueue() { }
 
+    /**
+     * Null 不做排队的操作
+     */
     private static class Null extends ReferenceQueue {
+        // 加入队列
         boolean enqueue(Reference r) {
             return false;
         }
@@ -51,20 +57,27 @@ public class ReferenceQueue<T> {
 
     static private class Lock { };
     private Lock lock = new Lock();
+    // 定义一个头
     private volatile Reference<? extends T> head = null;
     private long queueLength = 0;
 
     boolean enqueue(Reference<? extends T> r) { /* Called only by Reference class */
         synchronized (r) {
+            // 如果已经enqueue了，就不需要再做
             if (r.queue == ENQUEUED) return false;
             synchronized (lock) {
+                // 设置ENQUEUE
                 r.queue = ENQUEUED;
+                // 没有设置head的话，r开始为链表的头元素，否则就是头结点的插入
                 r.next = (head == null) ? r : head;
                 head = r;
+                // queue长度+1；
                 queueLength++;
                 if (r instanceof FinalReference) {
+                    // 如果是FinalReference的话，VM里面的计数+1
                     sun.misc.VM.addFinalRefCount(1);
                 }
+                // 通知所有的lock.wait，这个是Reference里面的线程ReferenceHandler调用
                 lock.notifyAll();
                 return true;
             }

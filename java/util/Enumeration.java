@@ -57,6 +57,8 @@ package java.util;
  *
  * @author  Lee Boynton
  * @since   JDK1.0
+ *
+ * 应该是以前的迭代模式接口
  */
 public interface Enumeration<E> {
     /**

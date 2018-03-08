@@ -91,6 +91,8 @@ package java.util;
  * @param <K> the type of keys maintained by this map
  * @param <V> the type of mapped values
  * @since 1.6
+ *
+ * 对Map进行比较分树的接口
  */
 public interface NavigableMap<K,V> extends SortedMap<K,V> {
     /**

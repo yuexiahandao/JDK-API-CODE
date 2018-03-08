@@ -115,6 +115,7 @@ public class TreeMap<K,V>
      */
     private final Comparator<? super K> comparator;
 
+    // 树的根节点
     private transient Entry<K,V> root = null;
 
     /**
@@ -528,6 +529,7 @@ public class TreeMap<K,V>
     public V put(K key, V value) {
         Entry<K,V> t = root;
         if (t == null) {
+            // 如果根节点为空，将传入的键值对构造成根节点（根节点没有父节点，所以传入的父节点为null）
             compare(key, key); // type (and possibly null) check
 
             root = new Entry<>(key, value, null);
@@ -535,9 +537,10 @@ public class TreeMap<K,V>
             modCount++;
             return null;
         }
-        int cmp;
+        int cmp; // 用于记录比较结果
         Entry<K,V> parent;
         // split comparator and comparable paths
+        // 分割比较器和可比较接口的处理
         Comparator<? super K> cpr = comparator;
         if (cpr != null) {
             do {
@@ -552,8 +555,11 @@ public class TreeMap<K,V>
             } while (t != null);
         }
         else {
+            // 注意treeMap不支持null的操作
             if (key == null)
                 throw new NullPointerException();
+            // Key本身是Comparable的接口，也就是说Comparable和Comparator的区别在这个地方
+            // 一个是类来实现，一个是外部实现而已
             Comparable<? super K> k = (Comparable<? super K>) key;
             do {
                 parent = t;
@@ -566,11 +572,13 @@ public class TreeMap<K,V>
                     return t.setValue(value);
             } while (t != null);
         }
+        // 没有找到节点的话，新建节点，并放入到树中
         Entry<K,V> e = new Entry<>(key, value, parent);
         if (cmp < 0)
             parent.left = e;
         else
             parent.right = e;
+        // 检查是否符合红黑树的规范，不符合进行调整。
         fixAfterInsertion(e);
         size++;
         modCount++;
@@ -1889,9 +1897,13 @@ public class TreeMap<K,V>
     static final class Entry<K,V> implements Map.Entry<K,V> {
         K key;
         V value;
+        // 左孩子
         Entry<K,V> left = null;
+        // 右孩子
         Entry<K,V> right = null;
+        // 父节点
         Entry<K,V> parent;
+        // 默认颜色是黑
         boolean color = BLACK;
 
         /**
@@ -2091,6 +2103,7 @@ public class TreeMap<K,V>
 
     /** From CLR */
     private void fixAfterInsertion(Entry<K,V> x) {
+        // 默认加入的节点为红色
         x.color = RED;
 
         while (x != null && x != root && x.parent.color == RED) {

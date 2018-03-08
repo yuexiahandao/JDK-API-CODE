@@ -142,6 +142,8 @@ import java.io.*;
  * @see     TreeMap
  * @see     Hashtable
  * @since   1.4
+ *
+ * 这里只是多维护一个表，主题还是通过HashMap进行的实现。
  */
 
 public class LinkedHashMap<K,V>

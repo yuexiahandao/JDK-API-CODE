@@ -48,6 +48,8 @@ package java.util;
  * @see ListIterator
  * @see Iterable
  * @since 1.2
+ *
+ * 迭代器接口
  */
 public interface Iterator<E> {
     /**

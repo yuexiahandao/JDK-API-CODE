@@ -108,6 +108,8 @@ package java.util;
  * @see Collection
  * @see ClassCastException
  * @since 1.2
+ *
+ * 这个也是分树的处理，类似于数据库的数据索引的结构了。
  */
 
 public interface SortedMap<K,V> extends Map<K,V> {

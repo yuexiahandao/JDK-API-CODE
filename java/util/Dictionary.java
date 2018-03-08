@@ -45,6 +45,8 @@ package java.util;
  * @see     java.lang.Object#hashCode()
  * @see     java.util.Hashtable
  * @since   JDK1.0
+ *
+ * 存储key/value的字典抽象类
  */
 public abstract
 class Dictionary<K,V> {

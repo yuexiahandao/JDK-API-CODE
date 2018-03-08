@@ -2240,11 +2240,14 @@ public class Arrays {
      *     <tt>original</tt> is not of a runtime type that can be stored in
      *     an array of class <tt>newType</tt>
      * @since 1.6
+     *
+     * 进行数组扩容
      */
     public static <T,U> T[] copyOf(U[] original, int newLength, Class<? extends T[]> newType) {
         T[] copy = ((Object)newType == (Object)Object[].class)
             ? (T[]) new Object[newLength]
             : (T[]) Array.newInstance(newType.getComponentType(), newLength);
+        // 调用System的数组copy，原先的内容也要拷贝进去
         System.arraycopy(original, 0, copy, 0,
                          Math.min(original.length, newLength));
         return copy;

@@ -29,6 +29,8 @@ package java.util;
  * Private implementation class for EnumSet, for "jumbo" enum types
  * (i.e., those with more than 64 elements).
  *
+ * EnumSet的私有实现，枚举超过64个元素时使用而已。
+ *
  * @author Josh Bloch
  * @since 1.5
  * @serial exclude

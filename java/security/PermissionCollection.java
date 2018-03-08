@@ -97,6 +97,7 @@ public abstract class PermissionCollection implements java.io.Serializable {
     private static final long serialVersionUID = -6727011328946861783L;
 
     // when set, add will throw an exception.
+    // 只读模式
     private volatile boolean readOnly;
 
     /**
@@ -109,6 +110,8 @@ public abstract class PermissionCollection implements java.io.Serializable {
      * @exception IllegalArgumentException - if this PermissionCollection
      *                object is a homogeneous collection and the permission
      *                is not of the correct type.
+     *
+     * 添加权限
      */
     public abstract void add(Permission permission);
 
@@ -127,6 +130,8 @@ public abstract class PermissionCollection implements java.io.Serializable {
      * Returns an enumeration of all the Permission objects in the collection.
      *
      * @return an enumeration of all the Permissions.
+     *
+     * 返回集合中所有的Permission对象
      */
     public abstract Enumeration<Permission> elements();
 

@@ -177,6 +177,8 @@ import java.util.Queue;
  * @since 1.5
  * @author Doug Lea
  * @param <E> the type of elements held in this collection
+ *
+ * 阻塞队列的标准接口
  */
 public interface BlockingQueue<E> extends Queue<E> {
     /**

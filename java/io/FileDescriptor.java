@@ -38,6 +38,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author  Pavani Diwanji
  * @since   JDK1.0
+ *
+ * 文件描述符类的实例用作底层机器特定结构的不透明句柄，表示打开的文件，打开的套接字或字节的另一个源或接收器。
+ * 文件描述符的主要实际用途是创建一个FileInputStream或FileOutputStream来包含它。
+ *
+ * 应用不应该自己的FileDescriptor类。
  */
 public final class FileDescriptor {
 
@@ -49,6 +54,9 @@ public final class FileDescriptor {
      * A use counter for tracking the FIS/FOS/RAF instances that
      * use this FileDescriptor. The FIS/FOS.finalize() will not release
      * the FileDescriptor if it is still under use by any stream.
+     *
+     * useCount是为了追踪使用FileDescriptor的FIS/FOS/RAF实例数。
+     * 如果还有任何流使用，FIS/FOS.finalize()就不会释放FileDescriptor。
      */
     private AtomicInteger useCount;
 
@@ -56,6 +64,8 @@ public final class FileDescriptor {
     /**
      * Constructs an (invalid) FileDescriptor
      * object.
+     *
+     * 创建一个不合法的FileDescriptor
      */
     public /**/ FileDescriptor() {
         fd = -1;
@@ -69,7 +79,10 @@ public final class FileDescriptor {
 
     // Set up JavaIOFileDescriptorAccess in SharedSecrets
     static {
+        // 设置setJavaIOFileDescriptorAccess，有意思
+        // 这个类设置了JavaIOFileDescriptorAccess，这个里面是文件句柄，我们应该可以使用这个类来获取进程的句柄
         sun.misc.SharedSecrets.setJavaIOFileDescriptorAccess(
+                // 但是都需要FileDescriptor类
             new sun.misc.JavaIOFileDescriptorAccess() {
                 public void set(FileDescriptor obj, int fd) {
                     obj.fd = fd;
@@ -119,6 +132,8 @@ public final class FileDescriptor {
     /**
      * Tests if this file descriptor object is valid.
      *
+     * 测试文件描述符是不是合法的
+     *
      * @return  {@code true} if the file descriptor object represents a
      *          valid, open file, socket, or other active I/O connection;
      *          {@code false} otherwise.
@@ -154,22 +169,32 @@ public final class FileDescriptor {
      *        or because the system cannot guarantee that all the
      *        buffers have been synchronized with physical media.
      * @since     JDK1.1
+     *
+     * 内存到文件的同步
      */
     public native void sync() throws SyncFailedException;
 
     /* This routine initializes JNI field offsets for the class */
+    // 本地方法，此例程初始化该类的JNI字段偏移量
     private static native void initIDs();
 
+    // 本地方法
     private static native long set(int d);
 
+    /**
+     * 文件标准的流，这个会实例化FileDescriptor，设置fd的值
+     * @param fd
+     * @return
+     */
     private static FileDescriptor standardStream(int fd) {
         FileDescriptor desc = new FileDescriptor();
+        // 这里就是setId的返回
         desc.handle = set(fd);
         return desc;
     }
 
     // package private methods used by FIS, FOS and RAF.
-
+    // Atomic操作
     int incrementAndGetUseCount() {
         return useCount.incrementAndGet();
     }

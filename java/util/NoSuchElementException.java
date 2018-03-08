@@ -34,6 +34,8 @@ package java.util;
  * @see     java.util.Enumeration
  * @see     java.util.Enumeration#nextElement()
  * @since   JDK1.0
+ *
+ * 没有这样的元素异常
  */
 public
 class NoSuchElementException extends RuntimeException {

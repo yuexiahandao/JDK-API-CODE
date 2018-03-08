@@ -65,6 +65,8 @@ package java.util;
  * @see     TreeMap
  * @see     AbstractList
  * @since   1.2
+ *
+ * 并发修改的异常。
  */
 public class ConcurrentModificationException extends RuntimeException {
     private static final long serialVersionUID = -3666751008965953603L;

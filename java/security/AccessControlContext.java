@@ -93,16 +93,18 @@ import sun.misc.SharedSecrets;
  * acc.checkPermission(permission)
  */
 public final class AccessControlContext {
-
+    // 保护域（居然只是一个数组）
     private ProtectionDomain context[];
+    // 是不是超权限的
     private boolean isPrivileged;
 
     // Note: This field is directly used by the virtual machine
     // native codes. Don't touch it.
-    // 这个字段直接被虚拟机使用
+    // 这个字段直接被虚拟机本地代码使用
     private AccessControlContext privilegedContext;
 
     // 用于组合两个AccessControlContext的配置，比如上面的privilegedContext和当前的Context
+    // 下文包含上文的环境
     private DomainCombiner combiner = null;
 
     private static boolean debugInit = false;
@@ -377,6 +379,7 @@ public final class AccessControlContext {
                     if (!dumpDebug) {
                         debug.println("access denied " + perm);
                     }
+                    // 获取调用堆栈
                     Thread.currentThread().dumpStack();
                     final ProtectionDomain pd = context[i];
                     final Debug db = debug;

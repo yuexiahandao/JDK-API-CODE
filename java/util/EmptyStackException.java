@@ -32,6 +32,8 @@ package java.util;
  * @author  Jonathan Payne
  * @see     java.util.Stack
  * @since   JDK1.0
+ *
+ * 空栈异常
  */
 public
 class EmptyStackException extends RuntimeException {

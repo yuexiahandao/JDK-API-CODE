@@ -34,6 +34,8 @@ import java.util.Iterator;
  * @param <T> the type of elements returned by the iterator
  *
  * @since 1.5
+ *
+ * 用于迭代生成的类
  */
 public interface Iterable<T> {
 
@@ -41,6 +43,7 @@ public interface Iterable<T> {
      * Returns an iterator over a set of elements of type T.
      *
      * @return an Iterator.
+     * // 返回迭代器
      */
     Iterator<T> iterator();
 }

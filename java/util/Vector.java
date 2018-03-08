@@ -75,6 +75,8 @@ package java.util;
  * @see Collection
  * @see LinkedList
  * @since   JDK1.0
+ *
+ * 这是一个列表的实现，继承的方式和List差不多
  */
 public class Vector<E>
     extends AbstractList<E>
@@ -88,6 +90,8 @@ public class Vector<E>
      * <p>Any array elements following the last element in the Vector are null.
      *
      * @serial
+     *
+     * 存放元素的数组
      */
     protected Object[] elementData;
 
@@ -97,6 +101,8 @@ public class Vector<E>
      * {@code elementData[elementCount-1]} are the actual items.
      *
      * @serial
+     *
+     * 计数
      */
     protected int elementCount;
 
@@ -107,6 +113,8 @@ public class Vector<E>
      * of the vector is doubled each time it needs to grow.
      *
      * @serial
+     *
+     * 增长量
      */
     protected int capacityIncrement;
 
@@ -128,7 +136,9 @@ public class Vector<E>
         if (initialCapacity < 0)
             throw new IllegalArgumentException("Illegal Capacity: "+
                                                initialCapacity);
+        // Object对象，不在乎类型
         this.elementData = new Object[initialCapacity];
+        // 每次扩容的增长量
         this.capacityIncrement = capacityIncrement;
     }
 
@@ -183,6 +193,8 @@ public class Vector<E>
      * @throws ArrayStoreException if a component of this vector is not of
      *         a runtime type that can be stored in the specified array
      * @see #toArray(Object[])
+     *
+     * 线程安全的操作方式
      */
     public synchronized void copyInto(Object[] anArray) {
         System.arraycopy(elementData, 0, anArray, 0, elementCount);
@@ -195,6 +207,8 @@ public class Vector<E>
      * its internal data array, kept in the field {@code elementData},
      * with a smaller one. An application can use this operation to
      * minimize the storage of a vector.
+     *
+     * 设置为当前的元素容量大小
      */
     public synchronized void trimToSize() {
         modCount++;
@@ -222,6 +236,7 @@ public class Vector<E>
      * @param minCapacity the desired minimum capacity
      */
     public synchronized void ensureCapacity(int minCapacity) {
+        // 保证当前的容量是足够，不够的话，进行扩容处理
         if (minCapacity > 0) {
             modCount++;
             ensureCapacityHelper(minCapacity);
@@ -253,12 +268,16 @@ public class Vector<E>
     private void grow(int minCapacity) {
         // overflow-conscious code
         int oldCapacity = elementData.length;
+        // 扩容方式是翻倍或者用户指定的扩容参数即可
         int newCapacity = oldCapacity + ((capacityIncrement > 0) ?
                                          capacityIncrement : oldCapacity);
         if (newCapacity - minCapacity < 0)
+            // 防止容量不够
             newCapacity = minCapacity;
         if (newCapacity - MAX_ARRAY_SIZE > 0)
+            // 不能超过上限，其实没有上限的
             newCapacity = hugeCapacity(minCapacity);
+        // 进行扩容存放元素。
         elementData = Arrays.copyOf(elementData, newCapacity);
     }
 

@@ -80,6 +80,8 @@ package java.util;
  * @see Collections#singleton(java.lang.Object)
  * @see Collections#EMPTY_SET
  * @since 1.2
+ *
+ * Set标准接口
  */
 
 public interface Set<E> extends Collection<E> {

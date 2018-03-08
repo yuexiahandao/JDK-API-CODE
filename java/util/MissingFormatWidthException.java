@@ -33,6 +33,8 @@ package java.util;
  * NullPointerException} to be thrown.
  *
  * @since 1.5
+ *
+ * 没有格式宽度的异常，需要传入s否则会抛出NullPointerException
  */
 public class MissingFormatWidthException extends IllegalFormatException {
 

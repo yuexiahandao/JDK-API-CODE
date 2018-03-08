@@ -33,6 +33,8 @@ import java.io.IOException;
  * stream.
  *
  * @since 1.5
+ *
+ * Flushable是数据的终点，可以被刷新。调用刷新的方法来写任何缓存，输出到底层流中。
  */
 
 public interface Flushable {

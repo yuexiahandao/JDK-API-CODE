@@ -38,6 +38,8 @@ package java.security;
  *
  * @author Roland Schemers
  * @author Li Gong
+ *
+ * 这个接口代表一个守卫，守卫是一个对象，用来保护对其他对象的访问。
  */
 
 public interface Guard {
@@ -50,6 +52,8 @@ public interface Guard {
      * @param object the object being protected by the guard.
      *
      * @exception SecurityException if access is denied.
+     *
+     * 通过object去判断是否被允许访问guard对象。如果可以，沉默返回，否则抛出异常。
      *
      */
     void checkGuard(Object object) throws SecurityException;

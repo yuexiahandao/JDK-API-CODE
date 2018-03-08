@@ -104,6 +104,8 @@ package java.util;
  * @see AbstractList
  * @see AbstractSequentialList
  * @since 1.2
+ *
+ * List标准接口定义
  */
 
 public interface List<E> extends Collection<E> {

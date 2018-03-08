@@ -54,6 +54,8 @@ package java.util;
  *
  * @author Mark Reinhold
  * @since 1.6
+ *
+ * SPI服务配置的错误
  */
 
 public class ServiceConfigurationError

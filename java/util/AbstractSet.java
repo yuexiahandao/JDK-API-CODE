@@ -53,6 +53,8 @@ package java.util;
  * @see AbstractCollection
  * @see Set
  * @since 1.2
+ *
+ * 实现了equals、hashCode和removeAll方法。
  */
 
 public abstract class AbstractSet<E> extends AbstractCollection<E> implements Set<E> {

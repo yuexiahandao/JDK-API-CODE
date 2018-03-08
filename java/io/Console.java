@@ -366,6 +366,7 @@ public final class Console implements Flushable
     private Formatter formatter;
     private Charset cs;
     private char[] rcb;
+    // 本地的native方法
     private static native String encoding();
     private static native boolean echo(boolean on) throws IOException;
     private static boolean echoOff;
@@ -553,15 +554,20 @@ public final class Console implements Flushable
     private static Console cons;
     private native static boolean istty();
     private Console() {
+        // 不运行new创建对象
+        // 读锁
         readLock = new Object();
+        // 写锁
         writeLock = new Object();
         String csname = encoding();
         if (csname != null) {
             try {
+                // 字符集
                 cs = Charset.forName(csname);
             } catch (Exception x) {}
         }
         if (cs == null)
+            // 默认字符集
             cs = Charset.defaultCharset();
         out = StreamEncoder.forOutputStreamWriter(
                   new FileOutputStream(FileDescriptor.out),

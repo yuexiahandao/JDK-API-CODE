@@ -48,6 +48,11 @@ import sun.reflect.annotation.AnnotationType;
  * variables; a means of loading files and libraries; and a utility
  * method for quickly copying a portion of an array.
  *
+ * System类包含几个有用的类属性和方法。这个类不能被实例化。
+ *
+ * System类提供的机制中是标准输入和标准输出，和错误输出流；外部访问定义的属性和环境变量；
+ * 加载文件和库的手段；以及用于快速复制数组的一部分的实用方法。
+ *
  * @author  unascribed
  * @since   JDK1.0
  */
@@ -59,6 +64,11 @@ public final class System {
      * the initialization for this class separated from clinit.
      * Note that to use properties set by the VM, see the constraints
      * described in the initializeSystemClass method.
+     *
+     * 通过静态初始化器注册本地方法。
+     *
+     * VM将调用initializeSystemClass方法去完成从clinit分离的这个类的初始化。
+     * 注意使用VM设置的属性，请参阅initializeSystemClass方法中描述的约束。
      */
     private static native void registerNatives();
     static {
@@ -74,6 +84,8 @@ public final class System {
      * open and ready to supply input data. Typically this stream
      * corresponds to keyboard input or another input source specified by
      * the host environment or user.
+     *
+     * 标准的输入流
      */
     public final static InputStream in = null;
 
@@ -101,6 +113,8 @@ public final class System {
      * @see     java.io.PrintStream#println(long)
      * @see     java.io.PrintStream#println(java.lang.Object)
      * @see     java.io.PrintStream#println(java.lang.String)
+     *
+     * 标准输出流
      */
     public final static PrintStream out = null;
 
@@ -115,10 +129,13 @@ public final class System {
      * of a user even if the principal output stream, the value of the
      * variable <code>out</code>, has been redirected to a file or other
      * destination that is typically not continuously monitored.
+     *
+     * 标准的错误输出流
      */
     public final static PrintStream err = null;
 
     /* The security manager for the system.
+    * 系统的SecurityManager
      */
     private static volatile SecurityManager security = null;
 
@@ -143,7 +160,9 @@ public final class System {
      * @since   JDK1.1
      */
     public static void setIn(InputStream in) {
+        // 检查是否有权限RuntimePermission("setIO")
         checkIO();
+        // 设置输入流
         setIn0(in);
     }
 
@@ -195,6 +214,7 @@ public final class System {
         setErr0(err);
     }
 
+    // 控制台的流
     private static volatile Console cons = null;
     /**
      * Returns the unique {@link java.io.Console Console} object associated
@@ -203,10 +223,13 @@ public final class System {
      * @return  The system console, if any, otherwise <tt>null</tt>.
      *
      * @since   1.6
+     *
+     * 返回唯一的关联当前JVM的Console对象
      */
      public static Console console() {
          if (cons == null) {
              synchronized (System.class) {
+                 // 这个需要知道setJavaIOAccess方法是在什么地方调用的。
                  cons = sun.misc.SharedSecrets.getJavaIOAccess().console();
              }
          }
@@ -237,18 +260,27 @@ public final class System {
      *          permit access to the channel.
      *
      * @since 1.5
+     *
+     * 返回创建JVM的entity继承的管道。
+     *
+     * 方法返回调用java.nio.channels.spi.SelectorProvider#inheritedChannel方法获取的管道。系统范围的SelectorProvider对象。
+     *
+     * 除了面向网络的渠道，在SelectorProvider中与描述，将来这个方法可能返回其他类型的管道。
      */
     public static Channel inheritedChannel() throws IOException {
         return SelectorProvider.provider().inheritedChannel();
     }
 
+    // 检查有没有setIO的权限
     private static void checkIO() {
         SecurityManager sm = getSecurityManager();
         if (sm != null) {
+            // 检查权限
             sm.checkPermission(new RuntimePermission("setIO"));
         }
     }
 
+    // 全部是本地方法
     private static native void setIn0(InputStream in);
     private static native void setOut0(PrintStream out);
     private static native void setErr0(PrintStream err);
@@ -275,6 +307,8 @@ public final class System {
      * @see #getSecurityManager
      * @see SecurityManager#checkPermission
      * @see java.lang.RuntimePermission
+     *
+     * 这个可以覆写默认的SecurityManager
      */
     public static
     void setSecurityManager(final SecurityManager s) {
@@ -288,6 +322,7 @@ public final class System {
 
     private static synchronized
     void setSecurityManager0(final SecurityManager s) {
+        // 先取得当前的getSecurityManager，然后检查权限是否正确
         SecurityManager sm = getSecurityManager();
         if (sm != null) {
             // ask the currently installed security manager if we
@@ -485,7 +520,7 @@ public final class System {
      * @exception  NullPointerException if either <code>src</code> or
      *               <code>dest</code> is <code>null</code>.
      *
-     * 数组拷贝，这是一个本地方法实现。
+     * 数组拷贝，这是一个本地方法实现。这个数组拷贝速度一般来说比较块
      */
     public static native void arraycopy(Object src,  int  srcPos,
                                         Object dest, int destPos,
@@ -501,6 +536,8 @@ public final class System {
      * @param x object for which the hashCode is to be calculated
      * @return  the hashCode
      * @since   JDK1.1
+     *
+     * 计算某个对象的hash值
      */
     public static native int identityHashCode(Object x);
 
@@ -524,7 +561,7 @@ public final class System {
      * <dt>user.dir             <dd>User's current working directory
      * </dl>
      */
-
+    // 系统属性，上面列出来的，都可以使用
     private static Properties props;
     private static native Properties initProperties(Properties props);
 
@@ -618,6 +655,7 @@ public final class System {
      * @see        java.lang.SecurityManager#checkPropertiesAccess()
      * @see        java.util.Properties
      */
+    // 上面列出来可以取得的系统属性，真是太棒了
     public static Properties getProperties() {
         SecurityManager sm = getSecurityManager();
         if (sm != null) {
@@ -878,6 +916,8 @@ public final class System {
      *         <code>name</code>
      * @see    #getenv()
      * @see    ProcessBuilder#environment()
+     *
+     * 取得系统运行的环境变量
      */
     public static String getenv(String name) {
         SecurityManager sm = getSecurityManager();
@@ -957,6 +997,8 @@ public final class System {
      *        if a security manager exists and its <code>checkExit</code>
      *        method doesn't allow exit with the specified status.
      * @see        java.lang.Runtime#exit(int)
+     *
+     * 退出系统
      */
     public static void exit(int status) {
         Runtime.getRuntime().exit(status);
@@ -979,6 +1021,8 @@ public final class System {
      * </pre></blockquote>
      *
      * @see     java.lang.Runtime#gc()
+     *
+     * 运行垃圾回收器。
      */
     public static void gc() {
         Runtime.getRuntime().gc();
@@ -1166,12 +1210,14 @@ public final class System {
         current.getThreadGroup().add(current);
 
         // register shared secrets
+        // 这里调用sharedSecrets
         setJavaLangAccess();
 
         // Subsystems that are invoked during initialization can invoke
         // sun.misc.VM.isBooted() in order to avoid doing things that should
         // wait until the application class loader has been set up.
         // IMPORTANT: Ensure that this remains the last initialization action!
+        // 启动完成后调用VM的booted函数
         sun.misc.VM.booted();
     }
 

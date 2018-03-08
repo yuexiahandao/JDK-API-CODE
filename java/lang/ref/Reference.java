@@ -36,6 +36,8 @@ import sun.misc.Cleaner;
  *
  * @author   Mark Reinhold
  * @since    1.2
+ *
+ * 引用对象的抽象基类。这个类定义了所有引用对象的通用操作。因为引用对象是与垃圾收集器密切合作实现的，所以这个类可能不会被直接子类化。
  */
 
 public abstract class Reference<T> {
@@ -87,11 +89,15 @@ public abstract class Reference<T> {
      * discovered objects through the discovered field.
      */
 
+    // 真实的类型
     private T referent;         /* Treated specially by GC */
 
+    // 建立一个ReferenceQueue队列
     ReferenceQueue<? super T> queue;
 
+    // 下一个，组成链表
     Reference next;
+    // VM使用的属性
     transient private Reference<T> discovered;  /* used by VM */
 
 
@@ -99,21 +105,27 @@ public abstract class Reference<T> {
      * must acquire this lock at the beginning of each collection cycle.  It is
      * therefore critical that any code holding this lock complete as quickly
      * as possible, allocate no new objects, and avoid calling user code.
+     *
+     * 用于同步垃圾收集器的对象。
      */
     static private class Lock { };
+    // 这是一个私有的方法而已
     private static Lock lock = new Lock();
 
 
     /* List of References waiting to be enqueued.  The collector adds
      * References to this list, while the Reference-handler thread removes
      * them.  This list is protected by the above lock object.
+     *
+     * 等待排队的Reference。收集器添加References到list中，直到Reference处理器线程移除他们。这个会被上面的Lock同步。
      */
     private static Reference pending = null;
 
     /* High-priority thread to enqueue pending References
+     * 高权限的线程，来对References进行入队操作。
      */
     private static class ReferenceHandler extends Thread {
-
+        // 加入某个线程组里面去，取个名字
         ReferenceHandler(ThreadGroup g, String name) {
             super(g, name);
         }
@@ -130,6 +142,7 @@ public abstract class Reference<T> {
                         r.next = r;
                     } else {
                         try {
+                            // 否则就进行阻塞等待，是在ReferenceQueue中调用的notify方法
                             lock.wait();
                         } catch (InterruptedException x) { }
                         continue;
@@ -137,18 +150,25 @@ public abstract class Reference<T> {
                 }
 
                 // Fast path for cleaners
+                // 如果Reference实现了Cleaner接口，那么就调用clean方法来获取我们想要的值
+                // 做一些清理操作。这个类在dt.jar中实现的。
                 if (r instanceof Cleaner) {
                     ((Cleaner)r).clean();
                     continue;
                 }
 
                 ReferenceQueue q = r.queue;
+                // 将ReferenceQueue加入到Queue中
                 if (q != ReferenceQueue.NULL) q.enqueue(r);
             }
         }
     }
 
+    /**
+     * 以高权限和deamon的方式启动线程组，放在根线程组里。
+     */
     static {
+        // 取得当前线程的线程组
         ThreadGroup tg = Thread.currentThread().getThreadGroup();
         for (ThreadGroup tgn = tg;
              tgn != null;
@@ -199,6 +219,7 @@ public abstract class Reference<T> {
      *
      * @return   <code>true</code> if and only if this reference object has
      *           been enqueued
+     * 是不是正在排队
      */
     public boolean isEnqueued() {
         /* In terms of the internal states, this predicate actually tests
@@ -220,6 +241,7 @@ public abstract class Reference<T> {
      *           it was not registered with a queue when it was created
      */
     public boolean enqueue() {
+        // 加入排队
         return this.queue.enqueue(this);
     }
 

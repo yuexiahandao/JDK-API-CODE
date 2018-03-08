@@ -266,6 +266,7 @@ public final class AccessController {
      * http://huangyunbin.iteye.com/blog/1942509
      */
 
+    // 做一些特权操作，但是这个是native方法
     public static native <T> T doPrivileged(PrivilegedAction<T> action);
 
     /**
@@ -294,8 +295,10 @@ public final class AccessController {
 
         AccessControlContext acc = getStackAccessControlContext();
         if (acc == null) {
+            // 没有上下文的话，直接执行特权
             return AccessController.doPrivileged(action);
         }
+        // 聚合Domain进行访问
         DomainCombiner dc = acc.getAssignedCombiner();
         return AccessController.doPrivileged(action, preserveCombiner(dc));
     }

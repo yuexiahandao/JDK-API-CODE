@@ -88,22 +88,29 @@ implements Serializable
     /**
      * Key is permissions Class, value is PermissionCollection for that class.
      * Not serialized; see serialization section at end of class.
+     *
+     * 类 -> PermissionCollection
      */
     private transient Map<Class<?>, PermissionCollection> permsMap;
 
     // optimization. keep track of whether unresolved permissions need to be
     // checked
+    // 乐观锁。跟踪是否没有解决的权限集需要被检查
     private transient boolean hasUnresolved = false;
 
     // optimization. keep track of the AllPermission collection
     // - package private for ProtectionDomain optimization
+    // 乐观的。保持跟踪allPermission集合。
+    // - 私有的包
     PermissionCollection allPermission;
 
     /**
      * Creates a new Permissions object containing no PermissionCollections.
      */
     public Permissions() {
+        // 初始化11个容量的map
         permsMap = new HashMap<Class<?>, PermissionCollection>(11);
+        // 所有权限为空
         allPermission = null;
     }
 
@@ -181,9 +188,11 @@ implements Serializable
             return true; // AllPermission has already been added
         } else {
             synchronized (this) {
+                // 通过permission找到相应的权限集
                 PermissionCollection pc = getPermissionCollection(permission,
                     false);
                 if (pc != null) {
+                    // 查找隐式关系
                     return pc.implies(permission);
                 } else {
                     // none found
@@ -200,6 +209,7 @@ implements Serializable
      * @return an enumeration of all the Permissions.
      */
 
+    // 获取所有的元素
     public Enumeration<Permission> elements() {
         // go through each Permissions in the hash table
         // and call their elements() function.
@@ -246,6 +256,7 @@ implements Serializable
      * @param createEmpty
      * @return
      */
+    // 通过Permission获取相应的权限集
     private PermissionCollection getPermissionCollection(Permission p,
         boolean createEmpty) {
         Class c = p.getClass();

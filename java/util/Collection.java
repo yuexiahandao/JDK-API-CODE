@@ -122,6 +122,8 @@ package java.util;
  * @see     Arrays
  * @see     AbstractCollection
  * @since 1.2
+ *
+ * 集合类的公共接口
  */
 
 public interface Collection<E> extends Iterable<E> {
@@ -230,6 +232,8 @@ public interface Collection<E> extends Iterable<E> {
      *         is not a supertype of the runtime type of every element in
      *         this collection
      * @throws NullPointerException if the specified array is null
+     *
+     * 返回数组，指定泛型，后面的数组用于存放返回值，可能扩容
      */
     <T> T[] toArray(T[] a);
 
@@ -387,6 +391,8 @@ public interface Collection<E> extends Iterable<E> {
      *         or if the specified collection is null
      * @see #remove(Object)
      * @see #contains(Object)
+     *
+     * 只保留指定集合中的元素
      */
     boolean retainAll(Collection<?> c);
 

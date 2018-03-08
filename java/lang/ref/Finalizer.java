@@ -28,7 +28,8 @@ package java.lang.ref;
 import java.security.PrivilegedAction;
 import java.security.AccessController;
 
-
+// FinalReference 引用类型主要是为虚拟机提供的，提供 对象被gc前需要执行finalize方法的对象 的机制。
+// Finalizer实现很简单，也是利用上面我们讲的ReferenceQueue VS Reference机制。
 final class Finalizer extends FinalReference { /* Package-private; must be in
                                                   same package as the Reference
                                                   class */
@@ -39,6 +40,7 @@ final class Finalizer extends FinalReference { /* Package-private; must be in
     static native void invokeFinalizeMethod(Object o) throws Throwable;
 
     static private ReferenceQueue queue = new ReferenceQueue();
+    // 维护了一个未执行finalize方法的reference列表
     static private Finalizer unfinalized = null;
     static private Object lock = new Object();
 
@@ -47,12 +49,14 @@ final class Finalizer extends FinalReference { /* Package-private; must be in
         prev = null;
 
     private boolean hasBeenFinalized() {
+        // 没有引用其他元素，自己对自己
         return (next == this);
     }
 
     private void add() {
         synchronized (lock) {
             if (unfinalized != null) {
+                // 双向链表头部插入
                 this.next = unfinalized;
                 unfinalized.prev = this;
             }
@@ -86,18 +90,21 @@ final class Finalizer extends FinalReference { /* Package-private; must be in
     }
 
     /* Invoked by VM */
+    // VM调用
     static void register(Object finalizee) {
         new Finalizer(finalizee);
     }
 
     private void runFinalizer() {
         synchronized (this) {
+            // 如果已经执行过Finalized方法，返回
             if (hasBeenFinalized()) return;
             remove();
         }
         try {
             Object finalizee = this.get();
             if (finalizee != null && !(finalizee instanceof java.lang.Enum)) {
+                // 调用finalizee方法
                 invokeFinalizeMethod(finalizee);
                 /* Clear stack slot containing this variable, to decrease
                    the chances of false retention with a conservative GC */
@@ -183,12 +190,16 @@ final class Finalizer extends FinalReference { /* Package-private; must be in
         }
     }
 
+    /**
+     * 启动一个FinalizerThread线程
+     */
     static {
         ThreadGroup tg = Thread.currentThread().getThreadGroup();
         for (ThreadGroup tgn = tg;
              tgn != null;
              tg = tgn, tgn = tg.getParent());
         Thread finalizer = new FinalizerThread(tg);
+        // 执行权限稍微低一些
         finalizer.setPriority(Thread.MAX_PRIORITY - 2);
         finalizer.setDaemon(true);
         finalizer.start();

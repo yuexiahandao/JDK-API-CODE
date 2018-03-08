@@ -82,6 +82,8 @@ package java.util;
  * @see     TreeSet
  * @see     HashMap
  * @since   1.2
+ *
+ * 利用hash表来实现相关的功能。
  */
 
 public class HashSet<E>
@@ -93,6 +95,7 @@ public class HashSet<E>
     private transient HashMap<E,Object> map;
 
     // Dummy value to associate with an Object in the backing Map
+    // 默认的值，这样可以省内存，不放null还是因为hashmap没找到元素默认也是Null，所以定义一个Object是靠谱的做法。
     private static final Object PRESENT = new Object();
 
     /**
@@ -113,6 +116,7 @@ public class HashSet<E>
      * @throws NullPointerException if the specified collection is null
      */
     public HashSet(Collection<? extends E> c) {
+        // 注意这里size的用法
         map = new HashMap<>(Math.max((int) (c.size()/.75f) + 1, 16));
         addAll(c);
     }
@@ -156,6 +160,7 @@ public class HashSet<E>
      *             than zero, or if the load factor is nonpositive
      */
     HashSet(int initialCapacity, float loadFactor, boolean dummy) {
+        // 这里使用的是LinkedHashMap
         map = new LinkedHashMap<>(initialCapacity, loadFactor);
     }
 
@@ -167,6 +172,7 @@ public class HashSet<E>
      * @see ConcurrentModificationException
      */
     public Iterator<E> iterator() {
+        // 直接使用map的迭代器
         return map.keySet().iterator();
     }
 
@@ -214,6 +220,7 @@ public class HashSet<E>
      * element
      */
     public boolean add(E e) {
+        // Value全部是PRESENT
         return map.put(e, PRESENT)==null;
     }
 
@@ -230,6 +237,7 @@ public class HashSet<E>
      * @return <tt>true</tt> if the set contained the specified element
      */
     public boolean remove(Object o) {
+        // 查看是否删除成功，通过PRESENT来判断
         return map.remove(o)==PRESENT;
     }
 
@@ -269,6 +277,7 @@ public class HashSet<E>
      */
     private void writeObject(java.io.ObjectOutputStream s)
         throws java.io.IOException {
+        // 重点是要恢复map的内容的，和默认PRESENT对象
         // Write out any hidden serialization magic
         s.defaultWriteObject();
 
